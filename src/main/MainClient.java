@@ -1,10 +1,13 @@
 package main;
 
+import control.*;
+import view.*;
+
 public class MainClient {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		FinestraPrincipale fp = new FinestraPrincipale();
+		ControllerPrincipale cp = new ControllerPrincipale(fp);
 	}
 
 }
