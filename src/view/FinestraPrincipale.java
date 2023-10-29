@@ -25,13 +25,17 @@ public class FinestraPrincipale extends JFrame {
 	private JTextField textFieldIndirizzo;
 	private JButton btnConnettiti;
 
-	/**
-	 * Create the frame.
-	 */
 	public FinestraPrincipale() {
-		setVisible(true);
+		
+		super("Connettiti al server");
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		setBounds(100, 100, 450, 300);
+		setResizable(false);
+		
+		setVisible(true);
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -56,6 +60,9 @@ public class FinestraPrincipale extends JFrame {
 		btnConnettiti = new JButton("Connettiti");
 		btnConnettiti.setBounds(246, 112, 95, 23);
 		contentPane.add(btnConnettiti);
+		
+		getRootPane().setDefaultButton(btnConnettiti);
+		
 	}
 
 	public JButton getBtnConnettiti() {

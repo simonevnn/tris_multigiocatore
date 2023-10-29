@@ -5,6 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import control.ControllerGioco;
+import view.FinestraGioco;
+
 public class Giocatore {
 
 	private Socket connessione;
@@ -18,6 +21,9 @@ public class Giocatore {
 		output = new ObjectOutputStream(connessione.getOutputStream());
 		input = new ObjectInputStream(connessione.getInputStream());
 			
+		FinestraGioco fg = new FinestraGioco();
+		ControllerGioco cg = new ControllerGioco();
+		
 	}
 	
 }

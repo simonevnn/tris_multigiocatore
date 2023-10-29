@@ -33,7 +33,11 @@ public class ControllerPrincipale implements ActionListener {
 		if(validaIndirizzo(indirizzo)) {
 			
 			try {
+				
 				Giocatore g = new Giocatore(indirizzo);
+				
+				finestra.setVisible(false);
+				
 			}
 			catch(IOException e) {
 				finestra.mostraErrore("Errore durante la connessione al server. Inserisci l'indirizzo corretto o riprova più tardi.");
