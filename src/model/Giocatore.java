@@ -8,7 +8,7 @@ import java.net.Socket;
 import control.ControllerGioco;
 import view.FinestraGioco;
 
-public class Giocatore {
+public class Giocatore extends Thread {
 
 	private Socket connessione;
 	private ObjectOutputStream output;

@@ -1,37 +1,75 @@
 package view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 
 public class FinestraGioco extends JFrame {
 
 	private JPanel contentPane;
-	private JPanel panelTris;
-	private JButton btnNewButton;
+	private JPanel pannelloTitolo;
+	private JPanel pannelloTris;
+	private JPanel pannelloBottoni;
+	private JLabel lblTitolo;
+	private JButton matriceBtn[][];
 	
 	public FinestraGioco() {
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		setVisible(true);
+		super("Partita");
+        
+        contentPane = new JPanel(new BorderLayout(5,5));
+        contentPane.setBorder(new EmptyBorder(10,10,10,10));
+        contentPane.setPreferredSize(new Dimension(500,550));
+        
+        pannelloTitolo = new JPanel(new BorderLayout(10,15));
+        contentPane.add(pannelloTitolo, BorderLayout.NORTH);
+        
+        lblTitolo = new JLabel("In partita",JLabel.CENTER);
+        lblTitolo.setBounds(178, 37, 78, 39);
+		lblTitolo.setFont(new Font("Tahoma", Font.PLAIN, 32));
+        pannelloTitolo.add(lblTitolo);
+        
+        pannelloTris = new JPanel(new BorderLayout(10,15));
+        contentPane.add(pannelloTris, BorderLayout.CENTER);
+        
+        pannelloBottoni = new JPanel(new GridLayout(3,3,5,5));
+        pannelloTris.add(pannelloBottoni, BorderLayout.CENTER);
+        
+        matriceBtn = new JButton[3][3];
+        
+        for (int i=0; i<matriceBtn.length; i++) {
+        	
+        	for(int j=0;j<matriceBtn[0].length;j++) {
+        		
+        		matriceBtn[i][j] = new JButton();
+        		matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
+        		pannelloBottoni.add(matriceBtn[i][j]);
+        		
+        	}
+            
+        }
+                        
+        setContentPane(contentPane);
+        pack();
+        setVisible(true);
 		
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new GridBagLayout());
-		setContentPane(contentPane);
-		
-		panelTris = new JPanel();
-		panelTris.setSize(getSize());
-		contentPane.add(panelTris);
-		
-		btnNewButton = new JButton("New button");
-		panelTris.add(btnNewButton);
-		
+	}
+	
+	public static void main(String[] args) {
+		FinestraGioco fg = new FinestraGioco();	//TEST ONLY
 	}
 
 }

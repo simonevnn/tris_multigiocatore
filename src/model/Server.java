@@ -3,11 +3,14 @@ package model;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.Semaphore;
 
 public class Server extends Thread {
 
 	private ServerSocket server;
 	private Socket richiestaClient;
+	private Semaphore primo;
+	private Semaphore secondo;
 	
 	public Server() {
 		
@@ -16,6 +19,9 @@ public class Server extends Thread {
 			server = new ServerSocket(8081,2);
 			
 			System.out.println("SERVER ATTIVO");
+			
+			primo = new Semaphore(1);
+			secondo = new Semaphore(0);
 			
 			this.start();
 			
@@ -31,13 +37,13 @@ public class Server extends Thread {
 		
 		try {
 			
-			while(true) {
-				
-				richiestaClient = server.accept();
-				
-				new Connessione(richiestaClient);
-				
-			}
+			richiestaClient = server.accept();
+			
+			new ConnessionePrimo(richiestaClient,primo,secondo);
+			
+			richiestaClient = server.accept();
+			
+			new ConnessioneSecondo(richiestaClient,primo,secondo);
 			
 		}
 		catch(IOException e) {
