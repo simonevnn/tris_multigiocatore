@@ -40,7 +40,7 @@ public class ConnessionePrimo extends Thread {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		System.out.println("Connessione avviata con successo.");
+		System.out.println("Connessione con il primo giocatore avviata con successo.");
 	}
 	
 }
