@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import control.ControllerGioco;
 import view.FinestraGioco;
 
 public class Giocatore extends Thread {
@@ -13,6 +12,7 @@ public class Giocatore extends Thread {
 	private Socket connessione;
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
+	private FinestraGioco finestra;
 	
 	public Giocatore(String indirizzo) throws IOException {
 		
@@ -20,9 +20,91 @@ public class Giocatore extends Thread {
 		
 		output = new ObjectOutputStream(connessione.getOutputStream());
 		input = new ObjectInputStream(connessione.getInputStream());
+	
+		this.start();
+		
+	}
+	
+	public void setFinestra(FinestraGioco finestra) {
+		this.finestra = finestra;
+	}
+	
+	public void inviaScelta(Comunicazione scelta) {
+		
+		Protocollo com = new Protocollo(scelta);
+		
+		try {
+			output.writeObject(com);
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void run() {
+		
+		while(true) {
 			
-		FinestraGioco fg = new FinestraGioco();
-		ControllerGioco cg = new ControllerGioco();
+			try {
+				
+				Protocollo com = null;
+				
+				Object o = input.readObject();
+				
+				if(o instanceof Protocollo) {
+					
+					com = (Protocollo)o;
+					
+					if(com.getComunicazione().equals(Comunicazione.OP_ACK)) {
+						
+						if(com.getMatriceTris()!=null)
+							mostraMatrice(com.getMatriceTris());
+						
+					}
+					else if(com.getComunicazione().equals(Comunicazione.OP_NACK)) {
+						
+						if(com.getMessaggio()!=null)
+							finestra.mostraErrore("Errore: "+com.getMessaggio());
+					
+					}
+					else if(com.getComunicazione().equals(Comunicazione.VITTORIA)) {
+						//istruzioni vittoria
+						break;
+					}
+					else if(com.getComunicazione().equals(Comunicazione.SCONFITTA)) {
+						//istruzioni sconfitta
+						break;
+					}
+					
+				}
+				else
+					System.out.println("Errore: Classe corrotta ricevuta dal server.");
+				
+			}
+			catch(IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+	
+	private void mostraMatrice(int[][] matrice) {
+		
+		for(int i=0;i<matrice.length;i++) {
+			
+			for(int j=0;j<matrice[0].length;j++) {
+				
+				if(matrice[i][j]==1)
+					finestra.getBtnMatrice(i,j).setText("O");
+				else if(matrice[i][j]==1)
+					finestra.getBtnMatrice(i,j).setText("X");
+				
+			}
+			
+		}
 		
 	}
 	

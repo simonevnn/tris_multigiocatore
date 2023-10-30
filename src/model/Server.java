@@ -11,6 +11,7 @@ public class Server extends Thread {
 	private Socket richiestaClient;
 	private Semaphore primo;
 	private Semaphore secondo;
+	private int[][] matriceTris;
 	
 	public Server() {
 		
@@ -22,6 +23,8 @@ public class Server extends Thread {
 			
 			primo = new Semaphore(1);
 			secondo = new Semaphore(0);
+			
+			inizializzaMat();
 			
 			this.start();
 			
@@ -39,15 +42,26 @@ public class Server extends Thread {
 			
 			richiestaClient = server.accept();
 			
-			new ConnessionePrimo(richiestaClient,primo,secondo);
+			new ConnessionePrimo(richiestaClient,primo,secondo,matriceTris);
 			
 			richiestaClient = server.accept();
 			
-			new ConnessioneSecondo(richiestaClient,primo,secondo);
+			new ConnessioneSecondo(richiestaClient,primo,secondo,matriceTris);
 			
 		}
 		catch(IOException e) {
 			e.printStackTrace();
+		}
+		
+	}
+	
+	private void inizializzaMat() {
+		
+		matriceTris = new int[3][3];
+		
+		for(int i=0;i<matriceTris.length;i++) {
+			for(int j=0;j<matriceTris[0].length;j++)
+				matriceTris[i][j] = 0;
 		}
 		
 	}

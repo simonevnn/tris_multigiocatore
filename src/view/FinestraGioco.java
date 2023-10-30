@@ -11,10 +11,14 @@ import java.awt.GridLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+
+import control.ControllerGioco;
+
 import javax.swing.JButton;
 
 public class FinestraGioco extends JFrame {
@@ -24,7 +28,7 @@ public class FinestraGioco extends JFrame {
 	private JPanel pannelloTris;
 	private JPanel pannelloBottoni;
 	private JLabel lblTitolo;
-	private JButton matriceBtn[][];
+	private JButton[][] matriceBtn;
 	
 	public FinestraGioco() {
 		
@@ -47,25 +51,46 @@ public class FinestraGioco extends JFrame {
         
         pannelloBottoni = new JPanel(new GridLayout(3,3,5,5));
         pannelloTris.add(pannelloBottoni, BorderLayout.CENTER);
-        
-        matriceBtn = new JButton[3][3];
-        
-        for (int i=0; i<matriceBtn.length; i++) {
-        	
-        	for(int j=0;j<matriceBtn[0].length;j++) {
-        		
-        		matriceBtn[i][j] = new JButton();
-        		matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
-        		pannelloBottoni.add(matriceBtn[i][j]);
-        		
-        	}
-            
-        }
+		
+		for(int i=0;i<matriceBtn.length;i++) {
+			
+			for(int j=0;j<matriceBtn[0].length;j++) {
+				
+				matriceBtn[i][j] = new JButton();
+				matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
+				pannelloBottoni.add(matriceBtn[i][j]);
+			
+			}
+			
+		}
                         
         setContentPane(contentPane);
         pack();
         setVisible(true);
 		
+	}
+	
+	public JLabel getLblTitolo() {
+		return lblTitolo;
+	}
+
+	public JButton getBtnMatrice(int i, int j) {
+		return matriceBtn[i][j];
+	}
+	
+	public void registraEventi(ControllerGioco controller) {
+		
+		for(int i=0;i<matriceBtn.length;i++) {
+			
+			for(int j=0;j<matriceBtn[0].length;j++)
+				matriceBtn[i][j].addActionListener(controller);
+
+		}
+		
+	}
+
+	public void mostraErrore(String err) {
+		JOptionPane.showMessageDialog(contentPane,err);
 	}
 	
 	public static void main(String[] args) {

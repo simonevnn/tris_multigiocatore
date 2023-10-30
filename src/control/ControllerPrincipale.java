@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import model.Giocatore;
+import view.FinestraGioco;
 import view.FinestraPrincipale;
 
 public class ControllerPrincipale implements ActionListener {
@@ -35,6 +36,11 @@ public class ControllerPrincipale implements ActionListener {
 			try {
 				
 				Giocatore g = new Giocatore(indirizzo);
+				
+				FinestraGioco fg = new FinestraGioco();
+				ControllerGioco cg = new ControllerGioco(g,fg);
+				
+				g.setFinestra(fg);
 				
 				finestra.setVisible(false);
 				

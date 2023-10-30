@@ -13,8 +13,9 @@ public class ConnessioneSecondo extends Thread {
 	private ObjectOutputStream output;
 	private Semaphore primo;
 	private Semaphore secondo;
+	private int[][] matriceTris;
 	
-	public ConnessioneSecondo(Socket richiestaClient, Semaphore primo, Semaphore secondo) {
+	public ConnessioneSecondo(Socket richiestaClient, Semaphore primo, Semaphore secondo, int[][] matriceTris) {
 		
 		try {
 			
@@ -27,6 +28,8 @@ public class ConnessioneSecondo extends Thread {
 			
 			this.primo = primo;
 			this.secondo = secondo;
+			
+			this.matriceTris = matriceTris;
 			
 			this.start();
 			
