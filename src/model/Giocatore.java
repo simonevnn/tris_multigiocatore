@@ -22,7 +22,7 @@ public class Giocatore {
 		input = new ObjectInputStream(connessione.getInputStream());
 		
 	}
-	
+
 	public void setFinestra(FinestraGioco finestra) {
 		this.finestra = finestra;
 	}
@@ -50,16 +50,16 @@ public class Giocatore {
 				else if(com.getComunicazione().equals(Comunicazione.OP_NACK)) {
 					
 					if(com.getMessaggio()!=null)
-						finestra.mostraErrore("Errore: "+com.getMessaggio());
+						finestra.mostraMessaggio("Errore: "+com.getMessaggio());
 				
 				}
 				else if(com.getComunicazione().equals(Comunicazione.VITTORIA)) {
-					//istruzioni vittoria
-					
+					finestra.mostraMessaggio("HAI VINTO!");
+					finestra.cambiaTerminePartita();
 				}
 				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA)) {
-					//istruzioni sconfitta
-					
+					finestra.mostraMessaggio("HAI PERSO!");
+					finestra.cambiaTerminePartita();
 				}
 				
 			}
@@ -68,6 +68,22 @@ public class Giocatore {
 			
 		}
 		catch(IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void chiudiConnessione() {
+		
+		try {
+			
+			output.close();
+			input.close();
+			
+			connessione.close();
+			
+		}
+		catch(IOException e) {
 			e.printStackTrace();
 		}
 		

@@ -7,7 +7,7 @@ public class MainClient {
 
 	public static void main(String[] args) {
 		FinestraPrincipale fp = new FinestraPrincipale();
-		ControllerPrincipale cp = new ControllerPrincipale(fp);
+		Controller ctr = new Controller(fp);
 	}
 
 }

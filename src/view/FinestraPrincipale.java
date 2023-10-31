@@ -2,11 +2,12 @@ package view;
 
 import java.awt.EventQueue;
 
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import control.ControllerPrincipale;
+import control.Controller;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -69,7 +70,11 @@ public class FinestraPrincipale extends JFrame {
 		return btnConnettiti;
 	}
 	
-	public void registraEventi(ControllerPrincipale controller) {
+	public JTextField getTextFieldIndirizzo() {
+		return textFieldIndirizzo;
+	}
+
+	public void registraEventi(Controller controller) {
 		btnConnettiti.addActionListener(controller);
 	}
 	

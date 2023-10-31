@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -15,9 +16,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
-import control.ControllerGioco;
+import control.Controller;
 
 import javax.swing.JButton;
 
@@ -27,45 +30,66 @@ public class FinestraGioco extends JFrame {
 	private JPanel pannelloTitolo;
 	private JPanel pannelloTris;
 	private JPanel pannelloBottoni;
+	private JPanel pannelloEsci;
 	private JLabel lblTitolo;
 	private JButton[][] matriceBtn;
+	private JButton btnEsci;
 	
 	public FinestraGioco() {
 		
 		super("Partita");
-        
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
         contentPane = new JPanel(new BorderLayout(5,5));
         contentPane.setBorder(new EmptyBorder(10,10,10,10));
         contentPane.setPreferredSize(new Dimension(500,550));
         
-        pannelloTitolo = new JPanel(new BorderLayout(10,15));
+        pannelloTitolo = new JPanel(new BorderLayout(5,5));
         contentPane.add(pannelloTitolo, BorderLayout.NORTH);
         
-        lblTitolo = new JLabel("In partita",JLabel.CENTER);
+        lblTitolo = new JLabel("TRIS",JLabel.CENTER);
         lblTitolo.setBounds(178, 37, 78, 39);
-		lblTitolo.setFont(new Font("Tahoma", Font.PLAIN, 32));
+		lblTitolo.setFont(new Font("Tahoma", Font.BOLD, 48));
         pannelloTitolo.add(lblTitolo);
         
-        pannelloTris = new JPanel(new BorderLayout(10,15));
+        pannelloTris = new JPanel(new BorderLayout(30,30));
         contentPane.add(pannelloTris, BorderLayout.CENTER);
         
         pannelloBottoni = new JPanel(new GridLayout(3,3,5,5));
         pannelloTris.add(pannelloBottoni, BorderLayout.CENTER);
 		
+        matriceBtn = new JButton[3][3];
+        
 		for(int i=0;i<matriceBtn.length;i++) {
 			
 			for(int j=0;j<matriceBtn[0].length;j++) {
 				
 				matriceBtn[i][j] = new JButton();
 				matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
+				
+				matriceBtn[i][j].setBackground(Color.WHITE);
+				
 				pannelloBottoni.add(matriceBtn[i][j]);
 			
 			}
 			
 		}
-                        
+                   
+		pannelloEsci = new JPanel();
+		contentPane.add(pannelloEsci, BorderLayout.SOUTH);
+		
+		btnEsci = new JButton("Esci dalla partita");
+		btnEsci.setBounds(90,30,90,30);
+		
+		btnEsci.setBackground(Color.RED);
+		btnEsci.setForeground(Color.WHITE);
+		//btnEsci.setBorder(new LineBorder(Color.RED,3));
+		
+		pannelloEsci.add(btnEsci);
+		
         setContentPane(contentPane);
         pack();
+        setResizable(false);
         setVisible(true);
 		
 	}
@@ -78,7 +102,11 @@ public class FinestraGioco extends JFrame {
 		return matriceBtn[i][j];
 	}
 	
-	public void registraEventi(ControllerGioco controller) {
+	public JButton getBtnEsci() {
+		return btnEsci;
+	}
+
+	public void registraEventi(Controller controller) {
 		
 		for(int i=0;i<matriceBtn.length;i++) {
 			
@@ -87,14 +115,30 @@ public class FinestraGioco extends JFrame {
 
 		}
 		
+		btnEsci.addActionListener(controller);
+		
 	}
 
-	public void mostraErrore(String err) {
-		JOptionPane.showMessageDialog(contentPane,err);
+	public void mostraMessaggio(String msg) {
+		JOptionPane.showMessageDialog(contentPane,msg);
 	}
 	
-	public static void main(String[] args) {
-		FinestraGioco fg = new FinestraGioco();	//TEST ONLY
-	}
+	public void cambiaTerminePartita() {
+		
+		pannelloBottoni.removeAll();
+		pannelloBottoni.revalidate();
+		pannelloBottoni.repaint();
+		
+		pannelloEsci.removeAll();
+		pannelloEsci.revalidate();
+		pannelloEsci.repaint();
+			
+		pannelloBottoni.setLayout(new GridBagLayout());
+		btnEsci.setPreferredSize(new Dimension(120,50));
+		btnEsci.setText("Esci");
+		
+		pannelloBottoni.add(btnEsci);
 
+	}
+	
 }

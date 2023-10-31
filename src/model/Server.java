@@ -40,13 +40,17 @@ public class Server extends Thread {
 		
 		try {
 			
-			richiestaClient = server.accept();
-			
-			new ConnessionePrimo(richiestaClient,primo,secondo,matriceTris);
-			
-			richiestaClient = server.accept();
-			
-			new ConnessioneSecondo(richiestaClient,primo,secondo,matriceTris);
+			while(true) {
+
+				richiestaClient = server.accept();
+				
+				new ConnessionePrimo(richiestaClient,primo,secondo,matriceTris);
+				
+				richiestaClient = server.accept();
+				
+				new ConnessioneSecondo(richiestaClient,primo,secondo,matriceTris);
+				
+			}
 			
 		}
 		catch(IOException e) {
