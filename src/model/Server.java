@@ -8,7 +8,8 @@ import java.util.concurrent.Semaphore;
 public class Server extends Thread {
 
 	private ServerSocket server;
-	private Socket richiestaClient;
+	private Socket richiestaPrimo;
+	private Socket richiestaSecondo;
 	private Semaphore primo;
 	private Semaphore secondo;
 	private int[][] matriceTris;
@@ -43,13 +44,13 @@ public class Server extends Thread {
 			
 			while(true) {
 
-				richiestaClient = server.accept();
+				richiestaPrimo = server.accept();
 				
-				new ConnessionePrimo(richiestaClient,primo,secondo,this);
+				new ConnessionePrimo(richiestaPrimo,primo,secondo,this);
 				
-				richiestaClient = server.accept();
+				richiestaSecondo = server.accept();
 				
-				new ConnessioneSecondo(richiestaClient,primo,secondo,this);
+				new ConnessioneSecondo(richiestaSecondo,primo,secondo,this);
 				
 			}
 			

@@ -74,8 +74,7 @@ public class ConnessionePrimo extends Thread {
 						
 						try {
 							
-							if(!bloccoSemaforo)
-								primo.acquire();
+							primo.acquire();
 							
 							aggiorna(com.getComunicazione());
 							
@@ -88,18 +87,14 @@ public class ConnessionePrimo extends Thread {
 							else if(!server.isInPartita())
 								com = new Protocollo(Comunicazione.EXIT);
 							
-							bloccoSemaforo = false;
+							secondo.release();
 							
 						}
 						catch(InterruptedException e) {
 							com = new Protocollo(Comunicazione.OP_NACK,"Attendi il tuo turno.");
-							bloccoSemaforo = true;
 						}
 						
 						output.writeObject(com);
-						
-						if(!bloccoSemaforo)
-							secondo.release();
 						
 					}
 					
