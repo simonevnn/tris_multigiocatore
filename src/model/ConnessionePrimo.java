@@ -14,8 +14,9 @@ public class ConnessionePrimo extends Thread {
 	private Semaphore primo;
 	private Semaphore secondo;
 	private int[][] matriceTris;
+	private boolean inPartita;
 	
-	public ConnessionePrimo(Socket richiestaClient, Semaphore primo, Semaphore secondo, int[][] matriceTris) {
+	public ConnessionePrimo(Socket richiestaClient, Semaphore primo, Semaphore secondo, int[][] matriceTris, boolean inPartita) {
 		
 		try {
 			
@@ -30,6 +31,7 @@ public class ConnessionePrimo extends Thread {
 			this.secondo = secondo;
 			
 			this.matriceTris = matriceTris;
+			this.inPartita = inPartita;
 			
 			this.start();
 			

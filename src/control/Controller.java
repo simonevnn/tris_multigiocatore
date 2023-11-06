@@ -13,7 +13,7 @@ import model.Comunicazione;
 import model.Giocatore;
 import view.*;
 
-public class Controller implements ActionListener {
+public class Controller extends Thread implements ActionListener {
 
 	private FinestraPrincipale finestraPrincipale;
 	private FinestraGioco finestraGioco;
@@ -22,6 +22,16 @@ public class Controller implements ActionListener {
 	public Controller(FinestraPrincipale finestraPrincipale) {
 		this.finestraPrincipale = finestraPrincipale;
 		finestraPrincipale.registraEventi(this);
+	}
+
+	@Override
+	public void run() {
+		
+		while(true) {
+			if(!giocatore.isInPartita())
+				esci();
+		}
+		
 	}
 
 	@Override
@@ -81,7 +91,11 @@ public class Controller implements ActionListener {
 				
 				giocatore.setFinestra(finestraGioco);
 				
+				giocatore.setInPartita(true);
+				
 				finestraPrincipale.setVisible(false);
+				
+				this.start();
 				
 			}
 			catch(IOException e) {

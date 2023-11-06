@@ -12,6 +12,7 @@ public class Server extends Thread {
 	private Semaphore primo;
 	private Semaphore secondo;
 	private int[][] matriceTris;
+	private boolean inPartita;
 	
 	public Server() {
 		
@@ -44,11 +45,11 @@ public class Server extends Thread {
 
 				richiestaClient = server.accept();
 				
-				new ConnessionePrimo(richiestaClient,primo,secondo,matriceTris);
+				new ConnessionePrimo(richiestaClient,primo,secondo,matriceTris,inPartita);
 				
 				richiestaClient = server.accept();
 				
-				new ConnessioneSecondo(richiestaClient,primo,secondo,matriceTris);
+				new ConnessioneSecondo(richiestaClient,primo,secondo,matriceTris,inPartita);
 				
 			}
 			
@@ -58,7 +59,7 @@ public class Server extends Thread {
 		}
 		
 	}
-	
+
 	private void inizializzaMat() {
 		
 		matriceTris = new int[3][3];

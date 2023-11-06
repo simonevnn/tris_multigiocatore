@@ -8,4 +8,5 @@ public enum Comunicazione {
 	OP_NACK,
 	VITTORIA,
 	SCONFITTA,
+	EXIT
 }

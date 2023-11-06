@@ -13,6 +13,7 @@ public class Giocatore {
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
 	private FinestraGioco finestra;
+	private boolean inPartita;
 	
 	public Giocatore(String indirizzo) throws IOException {
 		
@@ -55,11 +56,15 @@ public class Giocatore {
 				}
 				else if(com.getComunicazione().equals(Comunicazione.VITTORIA)) {
 					finestra.mostraMessaggio("HAI VINTO!");
-					finestra.cambiaTerminePartita();
+					inPartita = false;
 				}
 				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA)) {
 					finestra.mostraMessaggio("HAI PERSO!");
-					finestra.cambiaTerminePartita();
+					inPartita = false;
+				}
+				else if(com.getComunicazione().equals(Comunicazione.EXIT)) {
+					finestra.mostraMessaggio("L'AVVERSARIO HA ABBANDONATO!");
+					inPartita = false;
 				}
 				
 			}
@@ -104,6 +109,14 @@ public class Giocatore {
 			
 		}
 		
+	}
+	
+	public boolean isInPartita() {
+		return inPartita;
+	}
+
+	public void setInPartita(boolean inPartita) {
+		this.inPartita = inPartita;
 	}
 	
 }
