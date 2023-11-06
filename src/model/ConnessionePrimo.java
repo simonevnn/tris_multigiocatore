@@ -31,7 +31,7 @@ public class ConnessionePrimo extends Thread {
 			this.secondo = secondo;
 			
 			this.matriceTris = matriceTris;
-			this.inPartita = inPartita;
+			this.inPartita = true;
 			
 			this.start();
 			
@@ -51,133 +51,124 @@ public class ConnessionePrimo extends Thread {
 			
 			try {
 				
-				if(!bloccoSemaforo)
-					primo.acquire();
-
-				try {
+				Object o = input.readObject();
+				
+				if(o instanceof Protocollo) {
 					
-					Object o = input.readObject();
+					Protocollo com = (Protocollo)o;
 					
-					if(o instanceof Protocollo) {
+					if(com.getComunicazione().equals(Comunicazione.EXIT)) {
 						
-						Protocollo scelta = (Protocollo)o;
+						inPartita = false;
 						
-						if(scelta.getComunicazione().equals(Comunicazione.EXIT)) {
+						com = new Protocollo(Comunicazione.OP_ACK);
+						
+						output.writeObject(com);
+						
+						input.close();
+						output.close();
+						connessione.close();
+						
+						break;
+						
+					}
+					else {
+						
+						try {
 							
+							if(!bloccoSemaforo)
+								primo.acquire();
 							
+							aggiorna(com.getComunicazione());
+							
+							if(controllo()==-1)
+								com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+							else if(controllo()==1)
+								com = new Protocollo(Comunicazione.VITTORIA);
+							else if(controllo()==0)
+								com = new Protocollo(Comunicazione.SCONFITTA);
+							else if(!inPartita)
+								com = new Protocollo(Comunicazione.EXIT);
+							
+							bloccoSemaforo = false;
 							
 						}
-						
-						if(controllaMatrice(scelta.getComunicazione())) {
-							
-							//controllo vincita/sconfitta/uscita
-							
+						catch(InterruptedException e) {
+							com = new Protocollo(Comunicazione.OP_NACK,"Attendi il tuo turno.");
+							bloccoSemaforo = true;
 						}
+						
+						output.writeObject(com);
+						
+						if(!bloccoSemaforo)
+							secondo.release();
 						
 					}
 					
-					Protocollo com = new Protocollo(Comunicazione.OP_NACK,"Attendi il tuo turno.");
-					
-				}
-				catch(IOException | ClassNotFoundException e){
-					e.printStackTrace();
 				}
 				
 			}
-			catch(InterruptedException e) {
-				
-				bloccoSemaforo = true;
-			
-				Protocollo com = new Protocollo(Comunicazione.OP_NACK,"Attendi il tuo turno.");
-				
-				try {
-					output.writeObject(com);
-				}
-				catch(IOException e1){
-					e.printStackTrace();
-				}
-			
+			catch(IOException | ClassNotFoundException e){
+				e.printStackTrace();
 			}
 			
-			if(!bloccoSemaforo)
-				secondo.release();
-		
-		}
-		
-		try {
-			input.close();
-			output.close();
-			connessione.close();
-		}
-		catch(IOException e) {
-			e.printStackTrace();
 		}
 		
 	}
 	
-	private boolean controllaMatrice(Comunicazione scelta) {
-		
-		int i=0,j=0;
+	private void aggiorna(Comunicazione scelta) {
 		
 		switch(scelta) {
 		
 			case A1:
-				i = 0;
-				j = 0;
+				matriceTris[0][0] = 1;
 				break;
-			
+
 			case B1:
-				i = 0;
-				j = 1;
+				matriceTris[0][1] = 1;
 				break;
 				
 			case C1:
-				i = 0;
-				j = 2;
+				matriceTris[0][2] = 1;
 				break;
 				
 			case A2:
-				i = 1;
-				j = 0;
+				matriceTris[1][0] = 1;
 				break;
 				
 			case B2:
-				i = 1;
-				j = 1;
+				matriceTris[1][1] = 1;
 				break;
 				
 			case C2:
-				i = 1;
-				j = 2;
+				matriceTris[1][2] = 1;
 				break;
 				
 			case A3:
-				i = 2;
-				j = 0;
+				matriceTris[2][0] = 1;
 				break;
 				
 			case B3:
-				i = 2;
-				j = 1;
+				matriceTris[2][1] = 1;
 				break;
 				
 			case C3:
-				i = 2;
-				j = 2;
+				matriceTris[2][2] = 1;
 				break;
-				
+		
 			default:
 				break;
-		
+				
 		}
-		
-		if(matriceTris[i][j]!=0)
-			return false;
-		
-		return true;
 		
 	}
 	
-	
+	private int controllo() {	//-1 nessun risultato, 1 vittoria, 0 sconfitta
+		
+		
+		
+		return -1;
+		
+	}
 	
 }

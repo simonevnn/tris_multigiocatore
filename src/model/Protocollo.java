@@ -19,6 +19,11 @@ public class Protocollo implements Serializable {
 		this.messaggio = messaggio;
 	}
 	
+	public Protocollo(Comunicazione comunicazione, int[][] matriceTris) {
+		this.comunicazione = comunicazione;
+		this.matriceTris = matriceTris;
+	}
+	
 	public Protocollo(Comunicazione comunicazione) {
 		this.comunicazione = comunicazione;
 	}

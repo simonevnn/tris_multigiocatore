@@ -64,7 +64,7 @@ public class FinestraGioco extends JFrame {
 			
 			for(int j=0;j<matriceBtn[0].length;j++) {
 				
-				matriceBtn[i][j] = new JButton();
+				matriceBtn[i][j] = new JButton("");
 				matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
 				
 				matriceBtn[i][j].setBackground(Color.WHITE);
