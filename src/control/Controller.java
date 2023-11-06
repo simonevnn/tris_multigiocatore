@@ -28,9 +28,15 @@ public class Controller extends Thread implements ActionListener {
 	public void run() {
 		
 		while(true) {
-			if(!giocatore.isInPartita())
+			
+			if(!giocatore.isInPartita()) {
 				esci();
+				break;
+			}
+			
 		}
+		
+		interrupt();
 		
 	}
 
@@ -69,8 +75,13 @@ public class Controller extends Thread implements ActionListener {
 			if(e.getSource()==finestraGioco.getBtnMatrice(2,2))
 				giocatore.inviaScelta(Comunicazione.C3);
 			
-			if(e.getSource()==finestraGioco.getBtnEsci())
+			if(e.getSource()==finestraGioco.getBtnEsci()) {
+			
+				giocatore.inviaScelta(Comunicazione.EXIT);
+				
 				esci();
+				
+			}
 			
 		}
 		

@@ -44,8 +44,24 @@ public class ConnessioneSecondo extends Thread {
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		System.out.println("Connessione con il secondo giocatore avviata con successo.");
+		
+		while(true) {
+			
+			try {
+				
+				primo.acquire();
+				
+				
+				
+			}
+			catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			secondo.release();
+		
+		}
+		
 	}
 	
 }
