@@ -45,11 +45,11 @@ public class Server extends Thread {
 
 				richiestaClient = server.accept();
 				
-				new ConnessionePrimo(richiestaClient,primo,secondo,matriceTris,inPartita);
+				new ConnessionePrimo(richiestaClient,primo,secondo,this);
 				
 				richiestaClient = server.accept();
 				
-				new ConnessioneSecondo(richiestaClient,primo,secondo,matriceTris,inPartita);
+				new ConnessioneSecondo(richiestaClient,primo,secondo,this);
 				
 			}
 			
@@ -58,6 +58,26 @@ public class Server extends Thread {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public int[][] getMatriceTris() {
+		return matriceTris;
+	}
+
+	public void setMatriceTris(int[][] matriceTris) {
+		this.matriceTris = matriceTris;
+	}
+	
+	public void setCellaMatrice(int i, int j, int val) {
+		matriceTris[i][j] = val;
+	}
+
+	public boolean isInPartita() {
+		return inPartita;
+	}
+
+	public void setInPartita(boolean inPartita) {
+		this.inPartita = inPartita;
 	}
 
 	private void inizializzaMat() {

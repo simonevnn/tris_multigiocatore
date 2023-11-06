@@ -13,10 +13,9 @@ public class ConnessioneSecondo extends Thread {
 	private ObjectOutputStream output;
 	private Semaphore primo;
 	private Semaphore secondo;
-	private int[][] matriceTris;
-	private boolean inPartita;
+	private Server server;
 	
-	public ConnessioneSecondo(Socket richiestaClient, Semaphore primo, Semaphore secondo, int[][] matriceTrism, boolean inPartita) {
+	public ConnessioneSecondo(Socket richiestaClient, Semaphore primo, Semaphore secondo, Server server) {
 		
 		try {
 			
@@ -29,9 +28,8 @@ public class ConnessioneSecondo extends Thread {
 			
 			this.primo = primo;
 			this.secondo = secondo;
-			
-			this.matriceTris = matriceTris;
-			this.inPartita = true;
+
+			this.server = server;
 			
 			this.start();
 			
@@ -59,7 +57,7 @@ public class ConnessioneSecondo extends Thread {
 					
 					if(com.getComunicazione().equals(Comunicazione.EXIT)) {
 						
-						inPartita = false;
+						server.setInPartita(false);
 						
 						com = new Protocollo(Comunicazione.OP_ACK);
 						
@@ -82,12 +80,12 @@ public class ConnessioneSecondo extends Thread {
 							aggiorna(com.getComunicazione());
 							
 							if(controllo()==-1)
-								com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+								com = new Protocollo(Comunicazione.OP_ACK,server.getMatriceTris());
 							else if(controllo()==1)
 								com = new Protocollo(Comunicazione.VITTORIA);
 							else if(controllo()==0)
 								com = new Protocollo(Comunicazione.SCONFITTA);
-							else if(!inPartita)
+							else if(!server.isInPartita())
 								com = new Protocollo(Comunicazione.EXIT);
 							
 							bloccoSemaforo = false;
@@ -121,39 +119,39 @@ public class ConnessioneSecondo extends Thread {
 		switch(scelta) {
 		
 			case A1:
-				matriceTris[0][0] = 2;
+				server.setCellaMatrice(0,0,2);
 				break;
 
 			case B1:
-				matriceTris[0][1] = 2;
+				server.setCellaMatrice(0,1,2);
 				break;
 				
 			case C1:
-				matriceTris[0][2] = 2;
+				server.setCellaMatrice(0,2,2);
 				break;
 				
 			case A2:
-				matriceTris[1][0] = 2;
+				server.setCellaMatrice(1,0,2);
 				break;
 				
 			case B2:
-				matriceTris[1][1] = 2;
+				server.setCellaMatrice(1,1,2);
 				break;
 				
 			case C2:
-				matriceTris[1][2] = 2;
+				server.setCellaMatrice(1,2,2);
 				break;
 				
 			case A3:
-				matriceTris[2][0] = 2;
+				server.setCellaMatrice(2,0,2);
 				break;
 				
 			case B3:
-				matriceTris[2][1] = 2;
+				server.setCellaMatrice(2,1,2);
 				break;
 				
 			case C3:
-				matriceTris[2][2] = 2;
+				server.setCellaMatrice(2,2,2);
 				break;
 		
 			default:
@@ -170,6 +168,5 @@ public class ConnessioneSecondo extends Thread {
 		return -1;
 		
 	}
-	
 	
 }
