@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.Semaphore;
 
 import view.FinestraGioco;
 
-public class Giocatore {
+public class Giocatore extends Thread {
 
 	private Socket connessione;
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
+	private Semaphore lettura;
+	private Semaphore scrittura;
 	private FinestraGioco finestra;
 	private boolean inPartita;
 	
@@ -22,58 +25,146 @@ public class Giocatore {
 		output = new ObjectOutputStream(connessione.getOutputStream());
 		input = new ObjectInputStream(connessione.getInputStream());
 		
+		lettura = new Semaphore(1);
+		scrittura = new Semaphore(0);
+		
+		inPartita = true;
+		
+		this.start();
+		
 	}
 
 	public void setFinestra(FinestraGioco finestra) {
 		this.finestra = finestra;
 	}
-
-	public void inviaScelta(Comunicazione scelta) {
-			
-		Protocollo com = new Protocollo(scelta);
+	
+	/**
+	 * 
+	 * while(true){
+	 * 
+	 * 		acquisisci lettura
+	 * 		leggi
+	 * 		rilascia scrittura
+	 * 
+	 * }
+	 * 
+	 */
+	
+	@Override
+	public void run() {
 		
-		try {
-			
-			output.writeObject(com);
+		Protocollo com = null;
+		
+		while(inPartita) {
+
+			try {
 				
-			Object o = input.readObject();
-			
-			if(o instanceof Protocollo) {
-				
-				com = (Protocollo)o;
-				
-				if(com.getComunicazione().equals(Comunicazione.OP_ACK)) {
+				lettura.acquire();
+
+				try {
 					
-					if(com.getMatriceTris()!=null)
-						mostraMatrice(com.getMatriceTris());
+					Object o = input.readObject();
+					
+					if(o instanceof Protocollo) {
+
+						com = (Protocollo)o;
+						
+						switch(com.getComunicazione()) {
+					
+							case OP_ACK:
+								System.out.println("entrato switch");
+								if(com.getMatriceTris()!=null)
+									mostraMatrice(com.getMatriceTris());
+
+								scrittura.release();
+								
+								break;
+							
+							case OP_NACK:
+								
+								if(com.getMessaggio()!=null)
+									finestra.mostraMessaggio("Errore: "+com.getMessaggio());
+								
+								scrittura.release();
+								
+								break;
+								
+							case VITTORIA:
+								
+								if(com.getMatriceTris()!=null)
+									mostraMatrice(com.getMatriceTris());
+								
+								finestra.mostraMessaggio("HAI VINTO!");
+								inPartita = false;
+								
+								scrittura.release();
+								
+								break;
+								
+							case SCONFITTA:
+								
+								if(com.getMatriceTris()!=null)
+									mostraMatrice(com.getMatriceTris());
+								
+								finestra.mostraMessaggio("HAI PERSO!");
+								inPartita = false;
+								
+								scrittura.release();
+								
+								break;
+								
+							case EXIT:
+								
+								finestra.mostraMessaggio("L'AVVERSARIO HA ABBANDONATO!");
+								inPartita = false;
+								
+								break;
+								
+							default:
+								lettura.release();
+								break;
+								
+						}
+						
+					}
+					else
+						lettura.release();
 					
 				}
-				else if(com.getComunicazione().equals(Comunicazione.OP_NACK)) {
-					
-					if(com.getMessaggio()!=null)
-						finestra.mostraMessaggio("Errore: "+com.getMessaggio());
-				
-				}
-				else if(com.getComunicazione().equals(Comunicazione.VITTORIA)) {
-					finestra.mostraMessaggio("HAI VINTO!");
-					inPartita = false;
-				}
-				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA)) {
-					finestra.mostraMessaggio("HAI PERSO!");
-					inPartita = false;
-				}
-				else if(com.getComunicazione().equals(Comunicazione.EXIT)) {
-					finestra.mostraMessaggio("L'AVVERSARIO HA ABBANDONATO!");
-					inPartita = false;
+				catch(IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+					lettura.release();
 				}
 				
 			}
-			else
-				System.out.println("Errore: Classe corrotta ricevuta dal server.");
+			catch(InterruptedException e) {
+				e.printStackTrace();
+			}
 			
 		}
-		catch(IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+		
+	}
+
+	public void inviaScelta(Comunicazione scelta) {
+		
+		try {
+			
+			scrittura.acquire();
+			
+			Protocollo com = new Protocollo(scelta);
+			
+			try {
+				output.writeObject(com);
+			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
+		
+			lettura.release();
+			
+		}
+		catch(InterruptedException e) {
+			finestra.mostraMessaggio("Aspetta il tuo turno.");
 		}
 		
 	}
@@ -81,6 +172,8 @@ public class Giocatore {
 	public void chiudiConnessione() {
 		
 		try {
+			
+			inPartita = false;
 			
 			output.close();
 			input.close();

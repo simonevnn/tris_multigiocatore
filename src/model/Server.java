@@ -1,17 +1,20 @@
 package model;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.Semaphore;
 
 public class Server extends Thread {
 
 	private ServerSocket server;
 	private Socket richiestaPrimo;
 	private Socket richiestaSecondo;
-	private Semaphore primo;
-	private Semaphore secondo;
+	private ObjectOutputStream outputPrimo;
+	private ObjectInputStream inputPrimo;
+	private ObjectOutputStream outputSecondo;
+	private ObjectInputStream inputSecondo;
 	private int[][] matriceTris;
 	private boolean inPartita;
 	
@@ -22,9 +25,6 @@ public class Server extends Thread {
 			server = new ServerSocket(8081,2);
 			
 			System.out.println("SERVER ATTIVO");
-			
-			primo = new Semaphore(1);
-			secondo = new Semaphore(0);
 			
 			inizializzaMat();
 			
@@ -43,14 +43,24 @@ public class Server extends Thread {
 		try {
 			
 			while(true) {
-
+				
 				richiestaPrimo = server.accept();
 				
-				new ConnessionePrimo(richiestaPrimo,primo,secondo,this);
+				System.out.println("Connessione richiesta da: "+richiestaPrimo.getInetAddress().toString()+":"+richiestaPrimo.getPort());
+				
+				outputPrimo = new ObjectOutputStream(richiestaPrimo.getOutputStream());
+				inputPrimo = new ObjectInputStream(richiestaPrimo.getInputStream());
 				
 				richiestaSecondo = server.accept();
 				
-				new ConnessioneSecondo(richiestaSecondo,primo,secondo,this);
+				System.out.println("Connessione richiesta da: "+richiestaSecondo.getInetAddress().toString()+":"+richiestaSecondo.getPort());
+				
+				outputSecondo = new ObjectOutputStream(richiestaSecondo.getOutputStream());
+				inputSecondo = new ObjectInputStream(richiestaSecondo.getInputStream());
+				
+				inPartita = true;
+				
+				gioco();
 				
 			}
 			
@@ -61,26 +71,130 @@ public class Server extends Thread {
 		
 	}
 	
-	public int[][] getMatriceTris() {
-		return matriceTris;
-	}
-
-	public void setMatriceTris(int[][] matriceTris) {
-		this.matriceTris = matriceTris;
+	private void gioco() {
+		
+		/**
+		 * 
+		 * while(true){
+		 * 
+		 * 		scrivi primo
+		 *		scrivi secondo
+		 *								leggi
+		 * 								scrivi
+		 *		leggiprimo
+		 *		scriviprimo
+		 *		scrivisecondo
+		 *								leggi
+		 *								scrivi			
+		 *		leggisecondo
+		 * 
+		 * }
+		 * 
+		 * 
+		 */
+		
+		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+		
+		scrivi(outputPrimo,com);
+		
+		do {
+			
+			com = leggi(inputPrimo);
+			
+			scrivi(outputPrimo,com);
+			scrivi(outputSecondo,com);
+			
+			com = leggi(inputSecondo);
+			
+			scrivi(outputPrimo,com);
+			scrivi(outputSecondo,com);
+			
+		}while(inPartita);
+		
+		try {
+			
+			richiestaPrimo.close();
+			richiestaSecondo.close();
+			
+			outputPrimo.close();
+			inputPrimo.close();
+			
+			outputSecondo.close();
+			inputSecondo.close();
+			
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
-	public void setCellaMatrice(int i, int j, int val) {
-		matriceTris[i][j] = val;
+	private void scrivi(ObjectOutputStream output, Protocollo com) {
+		
+		try {
+			output.writeObject(com);
+		}
+		catch(IOException e) {
+		}
+		
 	}
-
-	public boolean isInPartita() {
-		return inPartita;
+	
+	private Protocollo leggi(ObjectInputStream input) {
+		
+		Protocollo com = null;
+		
+		try {
+			
+			Object o = input.readObject();
+			
+			if(o instanceof Protocollo) {
+				
+				com = (Protocollo)o;
+				
+				if(com.getComunicazione().equals(Comunicazione.EXIT)) {
+					com = new Protocollo(Comunicazione.EXIT);
+					inPartita = false;
+				}
+				else {
+					
+					if(input.equals(inputPrimo))
+						aggiornaMat(com.getComunicazione(),1);
+					else
+						aggiornaMat(com.getComunicazione(),2);
+					
+					switch(controllo(matriceTris)) {
+					
+						case -1:
+							com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+							break;
+						
+						case 1:
+							com = new Protocollo(Comunicazione.VITTORIA,matriceTris);
+							break;
+						
+						case 0:
+							com = new Protocollo(Comunicazione.SCONFITTA,matriceTris);
+							break;
+							
+						default:
+							break;
+				
+					}	
+					
+				}
+				
+			}
+			else
+				com = new Protocollo(Comunicazione.OP_NACK,"Classe corrotta ricevuta dal server.");
+			
+		}
+		catch(IOException | ClassNotFoundException e){
+		}
+		
+		return com;
+		
 	}
-
-	public void setInPartita(boolean inPartita) {
-		this.inPartita = inPartita;
-	}
-
+	
 	private void inizializzaMat() {
 		
 		matriceTris = new int[3][3];
@@ -89,6 +203,61 @@ public class Server extends Thread {
 			for(int j=0;j<matriceTris[0].length;j++)
 				matriceTris[i][j] = 0;
 		}
+		
+	}
+	
+	private void aggiornaMat(Comunicazione scelta, int val) {
+		
+		switch(scelta) {
+		
+			case A1:
+				matriceTris[0][0] = val;
+				break;
+	
+			case B1:
+				matriceTris[0][1] = val;
+				break;
+				
+			case C1:
+				matriceTris[0][2] = val;
+				break;
+				
+			case A2:
+				matriceTris[1][0] = val;
+				break;
+				
+			case B2:
+				matriceTris[1][1] = val;
+				break;
+				
+			case C2:
+				matriceTris[1][2] = val;
+				break;
+				
+			case A3:
+				matriceTris[2][0] = val;
+				break;
+				
+			case B3:
+				matriceTris[2][1] = val;
+				break;
+				
+			case C3:
+				matriceTris[2][2] = val;
+				break;
+		
+			default:
+				break;
+			
+		}
+		
+	}
+	
+	private int controllo(int[][] matrice) {	//-1 nessun risultato, 1 vittoria, 0 sconfitta
+		
+		
+		
+		return -1;
 		
 	}
 	
