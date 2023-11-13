@@ -27,6 +27,9 @@ public class Protocollo implements Serializable {
 	public Protocollo(Comunicazione comunicazione) {
 		this.comunicazione = comunicazione;
 	}
+	
+	public Protocollo() {
+	}
 
 	public Comunicazione getComunicazione() {
 		return comunicazione;

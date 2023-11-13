@@ -94,22 +94,45 @@ public class Server extends Thread {
 		 */
 		
 		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+		Protocollo temp = null;
+		int i = 0;
 		
 		scrivi(outputPrimo,com);
 		
-		do {
+		while(inPartita) {		
 			
-			com = leggi(inputPrimo);
+			if(i%2==0) {
 			
-			scrivi(outputPrimo,com);
-			scrivi(outputSecondo,com);
+				com = leggi(inputPrimo);
+				scrivi(outputPrimo,com);
+				temp = leggi(inputPrimo);
+				
+				if(com.getComunicazione().equals(Comunicazione.VITTORIA))
+					com.setComunicazione(Comunicazione.SCONFITTA);
+				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA))
+					com.setComunicazione(Comunicazione.VITTORIA);
+				
+				scrivi(outputSecondo,com);
+				
+			}
+			else {
+
+				com = leggi(inputSecondo);
+				scrivi(outputSecondo,com);
+				temp = leggi(inputSecondo);
+				
+				if(com.getComunicazione().equals(Comunicazione.VITTORIA))
+					com.setComunicazione(Comunicazione.SCONFITTA);
+				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA))
+					com.setComunicazione(Comunicazione.VITTORIA);
+				
+				scrivi(outputPrimo,com);
+				
+			}
 			
-			com = leggi(inputSecondo);
-			
-			scrivi(outputPrimo,com);
-			scrivi(outputSecondo,com);
-			
-		}while(inPartita);
+			i++;
+
+		}
 		
 		try {
 			
@@ -142,54 +165,76 @@ public class Server extends Thread {
 	private Protocollo leggi(ObjectInputStream input) {
 		
 		Protocollo com = null;
+		boolean stop = false;
+		int g = 0;
 		
-		try {
+		do {
 			
-			Object o = input.readObject();
-			
-			if(o instanceof Protocollo) {
+			try {
 				
-				com = (Protocollo)o;
+				Object o = input.readObject();
 				
-				if(com.getComunicazione().equals(Comunicazione.EXIT)) {
-					com = new Protocollo(Comunicazione.EXIT);
-					inPartita = false;
-				}
-				else {
+				if(o instanceof Protocollo) {
 					
-					if(input.equals(inputPrimo))
-						aggiornaMat(com.getComunicazione(),1);
-					else
-						aggiornaMat(com.getComunicazione(),2);
+					com = (Protocollo)o;
 					
-					switch(controllo(matriceTris)) {
+					stop = true;
 					
-						case -1:
-							com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+					switch(com.getComunicazione()) {
+					
+						case OP_ACK:
 							break;
 						
-						case 1:
-							com = new Protocollo(Comunicazione.VITTORIA,matriceTris);
+						case EXIT:
+							com = new Protocollo(Comunicazione.EXIT);
+							inPartita = false;
 							break;
 						
-						case 0:
-							com = new Protocollo(Comunicazione.SCONFITTA,matriceTris);
-							break;
-							
 						default:
+							
+							if(input.equals(inputPrimo))
+								g = 1;
+							else
+								g = 2;
+								
+							aggiornaMat(com.getComunicazione(),1);
+							
+							switch(controllo(matriceTris,2)) {
+							
+								case -1:
+									com.setComunicazione(Comunicazione.OP_ACK);
+									break;
+								
+								case 0:
+									com.setComunicazione(Comunicazione.PAREGGIO);
+									break;
+									
+								case 1:
+									com.setComunicazione(Comunicazione.VITTORIA);
+									break;
+								
+								case 2:
+									com.setComunicazione(Comunicazione.SCONFITTA);
+									break;
+								
+								default:
+									break;
+							
+							}
+							
 							break;
-				
-					}	
+						
+					}
 					
 				}
+				else
+					com = new Protocollo(Comunicazione.OP_NACK,"Classe corrotta ricevuta dal server.");
 				
 			}
-			else
-				com = new Protocollo(Comunicazione.OP_NACK,"Classe corrotta ricevuta dal server.");
+			catch(IOException | ClassNotFoundException e){
+			}
 			
-		}
-		catch(IOException | ClassNotFoundException e){
-		}
+		}while(!stop);
 		
 		return com;
 		
@@ -253,12 +298,16 @@ public class Server extends Thread {
 		
 	}
 	
-	private int controllo(int[][] matrice) {	//-1 nessun risultato, 1 vittoria, 0 sconfitta
+	private int controllo(int[][] matrice, int giocatore) {	//-1 nessun risultato, 0 griglia piena, 1 vittoria, 2 sconfitta
 		
 		
 		
 		return -1;
 		
+	}
+
+	public static void main(String[] args) {
+		Server server = new Server();
 	}
 	
 }

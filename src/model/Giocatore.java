@@ -13,9 +13,10 @@ public class Giocatore extends Thread {
 	private Socket connessione;
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
+	private FinestraGioco finestra;
 	private Semaphore lettura;
 	private Semaphore scrittura;
-	private FinestraGioco finestra;
+	private boolean primaLettura;
 	private boolean inPartita;
 	
 	public Giocatore(String indirizzo) throws IOException {
@@ -28,7 +29,7 @@ public class Giocatore extends Thread {
 		lettura = new Semaphore(1);
 		scrittura = new Semaphore(0);
 		
-		inPartita = true;
+		primaLettura = inPartita = true;
 		
 		this.start();
 		
@@ -72,11 +73,19 @@ public class Giocatore extends Thread {
 						switch(com.getComunicazione()) {
 					
 							case OP_ACK:
-								System.out.println("entrato switch");
+
 								if(com.getMatriceTris()!=null)
 									mostraMatrice(com.getMatriceTris());
 
-								scrittura.release();
+								if(!primaLettura) {
+									primaLettura = true;
+									scrittura.release();
+									inviaScelta(Comunicazione.OP_ACK);
+								}
+								else {
+									primaLettura = false;
+									scrittura.release();
+								}
 								
 								break;
 							
@@ -84,8 +93,6 @@ public class Giocatore extends Thread {
 								
 								if(com.getMessaggio()!=null)
 									finestra.mostraMessaggio("Errore: "+com.getMessaggio());
-								
-								scrittura.release();
 								
 								break;
 								
@@ -97,7 +104,15 @@ public class Giocatore extends Thread {
 								finestra.mostraMessaggio("HAI VINTO!");
 								inPartita = false;
 								
-								scrittura.release();
+								if(!primaLettura) {
+									primaLettura = true;
+									scrittura.release();
+									inviaScelta(Comunicazione.OP_ACK);
+								}
+								else {
+									primaLettura = false;
+									scrittura.release();
+								}
 								
 								break;
 								
@@ -109,7 +124,15 @@ public class Giocatore extends Thread {
 								finestra.mostraMessaggio("HAI PERSO!");
 								inPartita = false;
 								
-								scrittura.release();
+								if(!primaLettura) {
+									primaLettura = true;
+									scrittura.release();
+									inviaScelta(Comunicazione.OP_ACK);
+								}
+								else {
+									primaLettura = false;
+									scrittura.release();
+								}
 								
 								break;
 								
