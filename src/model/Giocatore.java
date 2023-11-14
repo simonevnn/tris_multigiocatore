@@ -53,6 +53,7 @@ public class Giocatore extends Thread {
 				
 					case START:
 						finestra.sbloccaBottoni();
+						finestra.getLblTitolo().setText("IN PARTITA");
 						break;
 						
 					default:

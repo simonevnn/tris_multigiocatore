@@ -47,9 +47,9 @@ public class FinestraGioco extends JFrame {
         pannelloTitolo = new JPanel(new BorderLayout(5,5));
         contentPane.add(pannelloTitolo, BorderLayout.NORTH);
         
-        lblTitolo = new JLabel("TRIS",JLabel.CENTER);
+        lblTitolo = new JLabel("ATTESA GIOCATORI...",JLabel.CENTER);
         lblTitolo.setBounds(178, 37, 78, 39);
-		lblTitolo.setFont(new Font("Tahoma", Font.BOLD, 48));
+		lblTitolo.setFont(new Font("Tahoma", Font.BOLD, 32));
         pannelloTitolo.add(lblTitolo);
         
         pannelloTris = new JPanel(new BorderLayout(30,30));
