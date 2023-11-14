@@ -60,6 +60,8 @@ public class Server extends Thread {
 				
 				inPartita = true;
 				
+				broadcast(new Protocollo(Comunicazione.START));
+				
 				gioco();
 				
 			}
@@ -72,7 +74,7 @@ public class Server extends Thread {
 	}
 	
 	private void gioco() {
-		
+		System.out.println("gioco avviato");
 		/**
 		 * 
 		 * while(true){
@@ -94,41 +96,24 @@ public class Server extends Thread {
 		 */
 		
 		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
-		Protocollo temp = null;
 		int i = 0;
 		
 		scrivi(outputPrimo,com);
-		
+		System.out.println("scritto al primo (fuori dal while)");
 		while(inPartita) {		
-			
+			if(i==0)
+				System.out.println("nel while");
 			if(i%2==0) {
-			
 				com = leggi(inputPrimo);
-				scrivi(outputPrimo,com);
-				temp = leggi(inputPrimo);
-				
-				if(com.getComunicazione().equals(Comunicazione.VITTORIA))
-					com.setComunicazione(Comunicazione.SCONFITTA);
-				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA))
-					com.setComunicazione(Comunicazione.VITTORIA);
-				
-				scrivi(outputSecondo,com);
-				
+				System.out.println("scelta dal primo");
 			}
 			else {
-
 				com = leggi(inputSecondo);
-				scrivi(outputSecondo,com);
-				temp = leggi(inputSecondo);
-				
-				if(com.getComunicazione().equals(Comunicazione.VITTORIA))
-					com.setComunicazione(Comunicazione.SCONFITTA);
-				else if(com.getComunicazione().equals(Comunicazione.SCONFITTA))
-					com.setComunicazione(Comunicazione.VITTORIA);
-				
-				scrivi(outputPrimo,com);
-				
+				System.out.println("scelta dal secondo");
 			}
+			
+			broadcast(com);
+			System.out.println("broadcast effettuatop");
 			
 			i++;
 
@@ -162,79 +147,83 @@ public class Server extends Thread {
 		
 	}
 	
+	private void broadcast(Protocollo com) {
+		
+		try {
+			outputPrimo.writeObject(com);
+			outputSecondo.writeObject(com);
+		}
+		catch(IOException e) {
+		}
+		
+	}
+	
 	private Protocollo leggi(ObjectInputStream input) {
 		
 		Protocollo com = null;
-		boolean stop = false;
 		int g = 0;
-		
-		do {
 			
-			try {
+		try {
+			
+			Object o = input.readObject();
+			
+			if(o instanceof Protocollo) {
 				
-				Object o = input.readObject();
+				com = (Protocollo)o;
 				
-				if(o instanceof Protocollo) {
+				switch(com.getComunicazione()) {
+				
+					case OP_ACK:
+						break;
 					
-					com = (Protocollo)o;
+					case EXIT:
+						com = new Protocollo(Comunicazione.EXIT);
+						inPartita = false;
+						break;
 					
-					stop = true;
-					
-					switch(com.getComunicazione()) {
-					
-						case OP_ACK:
-							break;
+					default:
 						
-						case EXIT:
-							com = new Protocollo(Comunicazione.EXIT);
-							inPartita = false;
-							break;
+						if(input.equals(inputPrimo))
+							g = 1;
+						else
+							g = 2;
+							
+						aggiornaMat(com.getComunicazione(),g);
 						
-						default:
-							
-							if(input.equals(inputPrimo))
-								g = 1;
-							else
-								g = 2;
-								
-							aggiornaMat(com.getComunicazione(),1);
-							
-							switch(controllo(matriceTris,2)) {
-							
-								case -1:
-									com.setComunicazione(Comunicazione.OP_ACK);
-									break;
-								
-								case 0:
-									com.setComunicazione(Comunicazione.PAREGGIO);
-									break;
-									
-								case 1:
-									com.setComunicazione(Comunicazione.VITTORIA);
-									break;
-								
-								case 2:
-									com.setComunicazione(Comunicazione.SCONFITTA);
-									break;
-								
-								default:
-									break;
-							
-							}
-							
-							break;
+						switch(controllo(matriceTris,g)) {
 						
-					}
+							case -1:
+								com.setComunicazione(Comunicazione.OP_ACK);
+								break;
+							
+							case 0:
+								com.setComunicazione(Comunicazione.PAREGGIO);
+								break;
+								
+							case 1:
+								com.setComunicazione(Comunicazione.VITTORIA);
+								break;
+							
+							case 2:
+								com.setComunicazione(Comunicazione.SCONFITTA);
+								break;
+							
+							default:
+								break;
+						
+						}
+						
+						break;
 					
 				}
-				else
-					com = new Protocollo(Comunicazione.OP_NACK,"Classe corrotta ricevuta dal server.");
 				
 			}
-			catch(IOException | ClassNotFoundException e){
-			}
+			else
+				com = new Protocollo(Comunicazione.OP_NACK,"Classe corrotta ricevuta dal server.");
 			
-		}while(!stop);
+		}
+		catch(IOException | ClassNotFoundException e){
+		}
 		
 		return com;
 		

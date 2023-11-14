@@ -9,5 +9,6 @@ public enum Comunicazione {
 	VITTORIA,
 	SCONFITTA,
 	PAREGGIO,
-	EXIT
+	EXIT,
+	START
 }

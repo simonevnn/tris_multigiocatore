@@ -69,6 +69,8 @@ public class FinestraGioco extends JFrame {
 				
 				matriceBtn[i][j].setBackground(Color.WHITE);
 				
+				matriceBtn[i][j].setEnabled(false);
+				
 				pannelloBottoni.add(matriceBtn[i][j]);
 			
 			}
@@ -98,6 +100,10 @@ public class FinestraGioco extends JFrame {
 		return lblTitolo;
 	}
 
+	public void changeBtnText(int i, int j, String val) {
+		matriceBtn[i][j].setText(val);
+	}
+	
 	public JButton getBtnMatrice(int i, int j) {
 		return matriceBtn[i][j];
 	}
@@ -139,6 +145,17 @@ public class FinestraGioco extends JFrame {
 		
 		pannelloBottoni.add(btnEsci);
 
+	}
+	
+	public void sbloccaBottoni() {
+		
+		for(int i=0;i<matriceBtn.length;i++) {
+			
+			for(int j=0;j<matriceBtn[0].length;j++)
+				matriceBtn[i][j].setEnabled(true);
+
+		}
+		
 	}
 	
 }
