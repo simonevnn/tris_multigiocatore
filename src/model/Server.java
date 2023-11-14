@@ -60,7 +60,8 @@ public class Server extends Thread {
 				
 				inPartita = true;
 				
-				broadcast(new Protocollo(Comunicazione.START));
+				scrivi(outputPrimo,new Protocollo(Comunicazione.START));
+				scrivi(outputSecondo,new Protocollo(Comunicazione.START));
 				
 				gioco();
 				
@@ -101,8 +102,7 @@ public class Server extends Thread {
 		scrivi(outputPrimo,com);
 		System.out.println("scritto al primo (fuori dal while)");
 		while(inPartita) {		
-			if(i==0)
-				System.out.println("nel while");
+
 			if(i%2==0) {
 				com = leggi(inputPrimo);
 				System.out.println("scelta dal primo");
@@ -112,8 +112,14 @@ public class Server extends Thread {
 				System.out.println("scelta dal secondo");
 			}
 			
-			broadcast(com);
+			scrivi(outputPrimo,com);
+			scrivi(outputSecondo,com);
 			System.out.println("broadcast effettuatop");
+			
+			if(i%2==0)
+				leggi(inputPrimo);
+			else
+				leggi(inputSecondo);
 			
 			i++;
 
@@ -140,18 +146,16 @@ public class Server extends Thread {
 	private void scrivi(ObjectOutputStream output, Protocollo com) {
 		
 		try {
+			
+			if(com.getMatriceTris()!=null) {
+				for(int i=0;i<matriceTris.length;i++) {
+					for(int j=0;j<matriceTris[0].length;j++) 
+						System.out.println(matriceTris[i][j]);						
+				}
+			}
+			
+			output.reset();
 			output.writeObject(com);
-		}
-		catch(IOException e) {
-		}
-		
-	}
-	
-	private void broadcast(Protocollo com) {
-		
-		try {
-			outputPrimo.writeObject(com);
-			outputSecondo.writeObject(com);
 		}
 		catch(IOException e) {
 		}
@@ -193,19 +197,19 @@ public class Server extends Thread {
 						switch(controllo(matriceTris,g)) {
 						
 							case -1:
-								com.setComunicazione(Comunicazione.OP_ACK);
+								com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
 								break;
 							
 							case 0:
-								com.setComunicazione(Comunicazione.PAREGGIO);
+								com = new Protocollo(Comunicazione.PAREGGIO,matriceTris);
 								break;
 								
 							case 1:
-								com.setComunicazione(Comunicazione.VITTORIA);
+								com = new Protocollo(Comunicazione.VITTORIA,matriceTris);
 								break;
 							
 							case 2:
-								com.setComunicazione(Comunicazione.SCONFITTA);
+								com = new Protocollo(Comunicazione.SCONFITTA,matriceTris);
 								break;
 							
 							default:

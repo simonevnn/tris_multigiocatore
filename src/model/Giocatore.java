@@ -88,8 +88,6 @@ public class Giocatore extends Thread {
 		attendi();
 		System.out.println("attesa terminata");
 		
-		Protocollo com = null;
-		
 		while(inPartita) {
 
 			try {
@@ -98,11 +96,12 @@ public class Giocatore extends Thread {
 				System.out.println("lettura acquisito");
 				try {
 					
+					
 					Object o = input.readObject();
 					System.out.println("oggetto letto");
 					if(o instanceof Protocollo) {
 						System.out.println("oggetto è protocollo");
-						com = (Protocollo)o;
+						Protocollo com = (Protocollo)o;
 						
 						switch(com.getComunicazione()) {
 					
@@ -111,17 +110,6 @@ public class Giocatore extends Thread {
 								if(com.getMatriceTris()!=null) {
 									System.out.println("matrice non nulla");
 									mostraMatrice(com.getMatriceTris());
-								}
-
-								if(primaLettura) {
-									primaLettura = false;
-									scrittura.release();
-									System.out.println("prima lettura effettuata");
-								}
-								else {
-									primaLettura = true;
-									lettura.release();
-									System.out.println("seconda lettura effettuata");
 								}
 								
 								break;
@@ -141,17 +129,6 @@ public class Giocatore extends Thread {
 								finestra.mostraMessaggio("HAI VINTO!");
 								inPartita = false;
 								
-								if(primaLettura) {
-									primaLettura = false;
-									scrittura.release();
-									System.out.println("prima lettura effettuata");
-								}
-								else {
-									primaLettura = true;
-									lettura.release();
-									System.out.println("seconda lettura effettuata");
-								}
-								
 								break;
 								
 							case SCONFITTA:
@@ -161,17 +138,6 @@ public class Giocatore extends Thread {
 								
 								finestra.mostraMessaggio("HAI PERSO!");
 								inPartita = false;
-								
-								if(primaLettura) {
-									primaLettura = false;
-									scrittura.release();
-									System.out.println("prima lettura effettuata");
-								}
-								else {
-									primaLettura = true;
-									lettura.release();
-									System.out.println("seconda lettura effettuata");
-								}
 								
 								break;
 								
@@ -186,6 +152,18 @@ public class Giocatore extends Thread {
 								lettura.release();
 								break;
 								
+						}
+						
+						if(primaLettura) {
+							primaLettura = false;
+							scrittura.release();
+							System.out.println("prima lettura effettuata");
+						}
+						else {
+							primaLettura = true;
+							scrittura.release();
+							inviaScelta(Comunicazione.OP_ACK);
+							System.out.println("seconda lettura effettuata");
 						}
 						
 					}
@@ -257,11 +235,11 @@ public class Giocatore extends Thread {
 		for(int i=0;i<matrice.length;i++) {
 			
 			for(int j=0;j<matrice[0].length;j++) {
-				System.out.println("mostra matrice");
+				System.out.println(matrice[i][j]);
 				if(matrice[i][j]==1)
-					finestra.changeBtnText(i, j, "O");
+					finestra.getBtnMatrice(i,j).setText("O");
 				else if(matrice[i][j]==2)
-					finestra.changeBtnText(i, j, "X");
+					finestra.getBtnMatrice(i,j).setText("X");
 				
 			}
 			
