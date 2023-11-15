@@ -76,25 +76,6 @@ public class Server extends Thread {
 	
 	private void gioco() {
 		System.out.println("gioco avviato");
-		/**
-		 * 
-		 * while(true){
-		 * 
-		 * 		scrivi primo
-		 *		scrivi secondo
-		 *								leggi
-		 * 								scrivi
-		 *		leggiprimo
-		 *		scriviprimo
-		 *		scrivisecondo
-		 *								leggi
-		 *								scrivi			
-		 *		leggisecondo
-		 * 
-		 * }
-		 * 
-		 * 
-		 */
 		
 		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
 		int i = 0;
@@ -156,6 +137,7 @@ public class Server extends Thread {
 			
 			output.reset();
 			output.writeObject(com);
+			
 		}
 		catch(IOException e) {
 		}

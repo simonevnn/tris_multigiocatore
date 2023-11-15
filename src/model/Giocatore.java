@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
+import javax.swing.JButton;
+
 import view.FinestraGioco;
 
 public class Giocatore extends Thread {
@@ -233,14 +235,21 @@ public class Giocatore extends Thread {
 	
 	private void mostraMatrice(int[][] matrice) {
 		
+		JButton btnMatrice = null;
+		
 		for(int i=0;i<matrice.length;i++) {
 			
 			for(int j=0;j<matrice[0].length;j++) {
-				System.out.println(matrice[i][j]);
+				
+				btnMatrice = finestra.getBtnMatrice(i,j);
+				
 				if(matrice[i][j]==1)
-					finestra.getBtnMatrice(i,j).setText("O");
+					btnMatrice.setText("O");
 				else if(matrice[i][j]==2)
-					finestra.getBtnMatrice(i,j).setText("X");
+					btnMatrice.setText("X");
+				
+				if(!btnMatrice.getText().equals(""))
+					btnMatrice.setEnabled(false);
 				
 			}
 			
