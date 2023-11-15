@@ -75,27 +75,21 @@ public class Server extends Thread {
 	}
 	
 	private void gioco() {
-		System.out.println("gioco avviato");
 		
 		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
 		int i = 0;
 		
 		scrivi(outputPrimo,com);
-		System.out.println("scritto al primo (fuori dal while)");
+
 		while(inPartita) {		
 
-			if(i%2==0) {
+			if(i%2==0)
 				com = leggi(inputPrimo);
-				System.out.println("scelta dal primo");
-			}
-			else {
+			else 
 				com = leggi(inputSecondo);
-				System.out.println("scelta dal secondo");
-			}
 			
 			scrivi(outputPrimo,com);
 			scrivi(outputSecondo,com);
-			System.out.println("broadcast effettuatop");
 			
 			if(i%2==0)
 				leggi(inputPrimo);
@@ -127,19 +121,11 @@ public class Server extends Thread {
 	private void scrivi(ObjectOutputStream output, Protocollo com) {
 		
 		try {
-			
-			if(com.getMatriceTris()!=null) {
-				for(int i=0;i<matriceTris.length;i++) {
-					for(int j=0;j<matriceTris[0].length;j++) 
-						System.out.println(matriceTris[i][j]);						
-				}
-			}
-			
 			output.reset();
 			output.writeObject(com);
-			
 		}
 		catch(IOException e) {
+			e.printStackTrace();
 		}
 		
 	}
@@ -209,6 +195,7 @@ public class Server extends Thread {
 			
 		}
 		catch(IOException | ClassNotFoundException e){
+			e.printStackTrace();
 		}
 		
 		return com;

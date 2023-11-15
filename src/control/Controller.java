@@ -46,94 +46,37 @@ public class Controller extends Thread implements ActionListener, WindowListener
 		
 		if(finestraGioco!=null) {
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(0,0)) {
-				
-				if(finestraGioco.getBtnMatrice(0,0).getText()=="")
-					giocatore.inviaScelta(Comunicazione.A1);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(0,0))
+				giocatore.inviaScelta(Comunicazione.A1);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(0,1)) {
-				
-				if(finestraGioco.getBtnMatrice(0,1).getText()=="")
-					giocatore.inviaScelta(Comunicazione.B1);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(0,1))
+				giocatore.inviaScelta(Comunicazione.B1);
+
+			if(e.getSource()==finestraGioco.getBtnMatrice(0,2))
+				giocatore.inviaScelta(Comunicazione.C1);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(0,2)) {
-				
-				if(finestraGioco.getBtnMatrice(0,2).getText()=="")
-					giocatore.inviaScelta(Comunicazione.C1);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(1,0))
+				giocatore.inviaScelta(Comunicazione.A2);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(1,0)) {
-				
-				if(finestraGioco.getBtnMatrice(1,0).getText()=="")
-					giocatore.inviaScelta(Comunicazione.A2);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(1,1))
+				giocatore.inviaScelta(Comunicazione.B2);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(1,1)) {
-				
-				if(finestraGioco.getBtnMatrice(1,1).getText()=="")
-					giocatore.inviaScelta(Comunicazione.B2);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(1,2))
+				giocatore.inviaScelta(Comunicazione.C2);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(1,2)) {
-				
-				if(finestraGioco.getBtnMatrice(1,2).getText()=="")
-					giocatore.inviaScelta(Comunicazione.C2);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(2,0))
+				giocatore.inviaScelta(Comunicazione.A3);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(2,0)) {
-				
-				if(finestraGioco.getBtnMatrice(2,0).getText()=="")
-					giocatore.inviaScelta(Comunicazione.A3);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(2,1))
+				giocatore.inviaScelta(Comunicazione.B3);
 			
-			if(e.getSource()==finestraGioco.getBtnMatrice(2,1)) {
-				
-				if(finestraGioco.getBtnMatrice(2,1).getText()=="")
-					giocatore.inviaScelta(Comunicazione.B3);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
-			
-			if(e.getSource()==finestraGioco.getBtnMatrice(2,2)) {
-				
-				if(finestraGioco.getBtnMatrice(2,2).getText()=="")
-					giocatore.inviaScelta(Comunicazione.C3);
-				else
-					finestraGioco.mostraMessaggio("Errore: Cella già occupata.");
-				
-			}
+			if(e.getSource()==finestraGioco.getBtnMatrice(2,2))
+				giocatore.inviaScelta(Comunicazione.C3);
 			
 			//-- USCITA --
 			if(e.getSource()==finestraGioco.getBtnEsci()) {
-			
 				giocatore.inviaScelta(Comunicazione.EXIT);
-				
 				esci();
-				
 			}
 			
 		}

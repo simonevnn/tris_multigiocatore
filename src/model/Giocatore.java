@@ -87,33 +87,29 @@ public class Giocatore extends Thread {
 	@Override
 	public void run() {
 		
-		System.out.println("in attesa");
 		attendi();
-		System.out.println("attesa terminata");
-		
+
 		while(inPartita) {
 
 			try {
 				
 				lettura.acquire();
-				System.out.println("lettura acquisito");
+
 				try {
 					
 					
 					Object o = input.readObject();
-					System.out.println("oggetto letto");
+					
 					if(o instanceof Protocollo) {
-						System.out.println("oggetto è protocollo");
+						
 						Protocollo com = (Protocollo)o;
 						
 						switch(com.getComunicazione()) {
 					
 							case OP_ACK:
 
-								if(com.getMatriceTris()!=null) {
-									System.out.println("matrice non nulla");
+								if(com.getMatriceTris()!=null)		
 									mostraMatrice(com.getMatriceTris());
-								}
 								
 								break;
 							
@@ -160,13 +156,11 @@ public class Giocatore extends Thread {
 						if(primaLettura) {
 							primaLettura = false;
 							scrittura.release();
-							System.out.println("prima lettura effettuata");
 						}
 						else {
 							primaLettura = true;
 							scrittura.release();
 							inviaScelta(Comunicazione.OP_ACK);
-							System.out.println("seconda lettura effettuata");
 						}
 						
 					}
@@ -182,7 +176,6 @@ public class Giocatore extends Thread {
 			}
 			catch(InterruptedException e) {
 				e.printStackTrace();
-				System.out.println("lettura occupato");
 			}
 			
 		}
@@ -190,29 +183,24 @@ public class Giocatore extends Thread {
 	}
 
 	public void inviaScelta(Comunicazione scelta) {
-		
-		try {
 			
-			scrittura.acquire();
-			System.out.println("scrittura acquisito");
-			Protocollo com = new Protocollo(scelta);
+			if(scrittura.tryAcquire()) {
+				
+				Protocollo com = new Protocollo(scelta);
+				
+				try {
+					output.writeObject(com);
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+				}
 			
-			try {
-				output.writeObject(com);
-				System.out.println("scritto al server");
+				lettura.release();
+				
 			}
-			catch(IOException e) {
-				e.printStackTrace();
-			}
-		
-			lettura.release();
+			else
+				finestra.mostraMessaggio("Aspetta il tuo turno.");
 			
-		}
-		catch(InterruptedException e) {
-			System.out.println("scrittura occupato");
-			finestra.mostraMessaggio("Aspetta il tuo turno.");
-		}
-		
 	}
 	
 	public void chiudiConnessione() {
@@ -235,21 +223,12 @@ public class Giocatore extends Thread {
 	
 	private void mostraMatrice(int[][] matrice) {
 		
-		JButton btnMatrice = null;
-		
 		for(int i=0;i<matrice.length;i++) {
-			
+
 			for(int j=0;j<matrice[0].length;j++) {
 				
-				btnMatrice = finestra.getBtnMatrice(i,j);
-				
-				if(matrice[i][j]==1)
-					btnMatrice.setText("O");
-				else if(matrice[i][j]==2)
-					btnMatrice.setText("X");
-				
-				if(!btnMatrice.getText().equals(""))
-					btnMatrice.setEnabled(false);
+				if(matrice[i][j]!=0)
+					finestra.scriviScelta(i,j,matrice[i][j]);
 				
 			}
 			

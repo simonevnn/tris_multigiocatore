@@ -22,6 +22,7 @@ import javax.swing.border.LineBorder;
 
 import control.Controller;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class FinestraGioco extends JFrame {
@@ -68,6 +69,7 @@ public class FinestraGioco extends JFrame {
 				matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
 				
 				matriceBtn[i][j].setBackground(Color.WHITE);
+				matriceBtn[i][j].setIcon(new ImageIcon("resources/neutrale.png"));
 				
 				matriceBtn[i][j].setEnabled(false);
 				
@@ -98,10 +100,6 @@ public class FinestraGioco extends JFrame {
 	
 	public JLabel getLblTitolo() {
 		return lblTitolo;
-	}
-
-	public void changeBtnText(int i, int j, String val) {
-		matriceBtn[i][j].setText(val);
 	}
 	
 	public JButton getBtnMatrice(int i, int j) {
@@ -156,6 +154,11 @@ public class FinestraGioco extends JFrame {
 
 		}
 		
+	}
+	
+	public void scriviScelta(int i, int j, int val) {
+		matriceBtn[i][j].setEnabled(false);
+		matriceBtn[i][j].setDisabledIcon(new ImageIcon("resources/giocatore"+val+".png"));
 	}
 	
 }
