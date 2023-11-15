@@ -2,11 +2,12 @@ package view;
 
 import java.awt.EventQueue;
 
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import control.ControllerPrincipale;
+import control.Controller;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -25,13 +26,17 @@ public class FinestraPrincipale extends JFrame {
 	private JTextField textFieldIndirizzo;
 	private JButton btnConnettiti;
 
-	/**
-	 * Create the frame.
-	 */
 	public FinestraPrincipale() {
-		setVisible(true);
+		
+		super("Connettiti al server");
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		setBounds(100, 100, 450, 300);
+		setResizable(false);
+		
+		setVisible(true);
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -56,13 +61,20 @@ public class FinestraPrincipale extends JFrame {
 		btnConnettiti = new JButton("Connettiti");
 		btnConnettiti.setBounds(246, 112, 95, 23);
 		contentPane.add(btnConnettiti);
+		
+		getRootPane().setDefaultButton(btnConnettiti);
+		
 	}
 
 	public JButton getBtnConnettiti() {
 		return btnConnettiti;
 	}
 	
-	public void registraEventi(ControllerPrincipale controller) {
+	public JTextField getTextFieldIndirizzo() {
+		return textFieldIndirizzo;
+	}
+
+	public void registraEventi(Controller controller) {
 		btnConnettiti.addActionListener(controller);
 	}
 	
