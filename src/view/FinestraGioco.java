@@ -68,6 +68,8 @@ public class FinestraGioco extends JFrame {
 				matriceBtn[i][j] = new JButton("");
 				matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
 				
+				matriceBtn[i][j].setFocusable(false);
+				
 				matriceBtn[i][j].setBackground(Color.WHITE);
 				matriceBtn[i][j].setIcon(new ImageIcon("resources/neutrale.png"));
 				
@@ -123,27 +125,36 @@ public class FinestraGioco extends JFrame {
 		
 	}
 
-	public void mostraMessaggio(String msg) {
+	public void mostraErrore(String msg) {
 		JOptionPane.showMessageDialog(contentPane,msg);
 	}
 	
-	public void cambiaTerminePartita() {
+	public void confermaMessaggio(String msg, String title) {
 		
-		pannelloBottoni.removeAll();
-		pannelloBottoni.revalidate();
-		pannelloBottoni.repaint();
+		int s = JOptionPane.showConfirmDialog(contentPane,msg,title,JOptionPane.DEFAULT_OPTION);
 		
-		pannelloEsci.removeAll();
-		pannelloEsci.revalidate();
-		pannelloEsci.repaint();
-			
-		pannelloBottoni.setLayout(new GridBagLayout());
-		btnEsci.setPreferredSize(new Dimension(120,50));
-		btnEsci.setText("Esci");
+		if(s==0||s==-1)
+			btnEsci.doClick();
 		
-		pannelloBottoni.add(btnEsci);
-
 	}
+	
+//	public void cambiaTerminePartita() {
+//		
+//		pannelloBottoni.removeAll();
+//		pannelloBottoni.revalidate();
+//		pannelloBottoni.repaint();
+//		
+//		pannelloEsci.removeAll();
+//		pannelloEsci.revalidate();
+//		pannelloEsci.repaint();
+//			
+//		pannelloBottoni.setLayout(new GridBagLayout());
+//		btnEsci.setPreferredSize(new Dimension(120,50));
+//		btnEsci.setText("Esci");
+//		
+//		pannelloBottoni.add(btnEsci);
+//
+//	}
 	
 	public void sbloccaBottoni() {
 		

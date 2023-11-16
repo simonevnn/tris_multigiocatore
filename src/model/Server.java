@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Server extends Thread {
 
@@ -16,13 +17,13 @@ public class Server extends Thread {
 	private ObjectOutputStream outputSecondo;
 	private ObjectInputStream inputSecondo;
 	private int[][] matriceTris;
-	private boolean inPartita;
 	
 	public Server() {
 		
 		try {
 			
 			server = new ServerSocket(8081,2);
+			//server.setSoTimeout(10000);
 			
 			System.out.println("SERVER ATTIVO");
 			
@@ -40,25 +41,23 @@ public class Server extends Thread {
 	@Override
 	public void run() {
 		
-		try {
+		while(true) {
 			
-			while(true) {
+			try {
 				
 				richiestaPrimo = server.accept();
 				
-				System.out.println("Connessione richiesta da: "+richiestaPrimo.getInetAddress().toString()+":"+richiestaPrimo.getPort());
+				System.out.println("Prima connessione richiesta da: "+richiestaPrimo.getInetAddress().toString()+":"+richiestaPrimo.getPort());
 				
 				outputPrimo = new ObjectOutputStream(richiestaPrimo.getOutputStream());
 				inputPrimo = new ObjectInputStream(richiestaPrimo.getInputStream());
 				
 				richiestaSecondo = server.accept();
 				
-				System.out.println("Connessione richiesta da: "+richiestaSecondo.getInetAddress().toString()+":"+richiestaSecondo.getPort());
+				System.out.println("Seconda connessione richiesta da: "+richiestaSecondo.getInetAddress().toString()+":"+richiestaSecondo.getPort());
 				
 				outputSecondo = new ObjectOutputStream(richiestaSecondo.getOutputStream());
 				inputSecondo = new ObjectInputStream(richiestaSecondo.getInputStream());
-				
-				inPartita = true;
 				
 				scrivi(outputPrimo,new Protocollo(Comunicazione.START));
 				scrivi(outputSecondo,new Protocollo(Comunicazione.START));
@@ -66,22 +65,22 @@ public class Server extends Thread {
 				gioco();
 				
 			}
+			catch(IOException e) {
+				chiudi();
+			}
 			
-		}
-		catch(IOException e) {
-			e.printStackTrace();
 		}
 		
 	}
 	
-	private void gioco() {
+	private void gioco() throws IOException {
 		
 		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
 		int i = 0;
 		
 		scrivi(outputPrimo,com);
 
-		while(inPartita) {		
+		while(true) {		
 
 			if(i%2==0)
 				com = leggi(inputPrimo);
@@ -100,37 +99,14 @@ public class Server extends Thread {
 
 		}
 		
-		try {
-			
-			richiestaPrimo.close();
-			richiestaSecondo.close();
-			
-			outputPrimo.close();
-			inputPrimo.close();
-			
-			outputSecondo.close();
-			inputSecondo.close();
-			
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-		
 	}
 	
-	private void scrivi(ObjectOutputStream output, Protocollo com) {
-		
-		try {
-			output.reset();
-			output.writeObject(com);
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-		
+	private void scrivi(ObjectOutputStream output, Protocollo com) throws IOException {
+		output.reset();
+		output.writeObject(com);
 	}
 	
-	private Protocollo leggi(ObjectInputStream input) {
+	private Protocollo leggi(ObjectInputStream input) throws IOException {
 		
 		Protocollo com = null;
 		int g = 0;
@@ -143,49 +119,37 @@ public class Server extends Thread {
 				
 				com = (Protocollo)o;
 				
-				switch(com.getComunicazione()) {
-				
-					case OP_ACK:
-						break;
+				if(!com.getComunicazione().equals(Comunicazione.OP_ACK)) {
 					
-					case EXIT:
-						com = new Protocollo(Comunicazione.EXIT);
-						inPartita = false;
-						break;
+					if(input.equals(inputPrimo))
+						g = 1;
+					else
+						g = 2;
+						
+					aggiornaMat(com.getComunicazione(),g);
 					
-					default:
+					switch(controllo(matriceTris,g)) {
+					
+						case -1:
+							com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
+							break;
 						
-						if(input.equals(inputPrimo))
-							g = 1;
-						else
-							g = 2;
+						case 0:
+							com = new Protocollo(Comunicazione.PAREGGIO,matriceTris);
+							break;
 							
-						aggiornaMat(com.getComunicazione(),g);
+						case 1:
+							com = new Protocollo(Comunicazione.VITTORIA,matriceTris);
+							break;
 						
-						switch(controllo(matriceTris,g)) {
+						case 2:
+							com = new Protocollo(Comunicazione.SCONFITTA,matriceTris);
+							break;
 						
-							case -1:
-								com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
-								break;
-							
-							case 0:
-								com = new Protocollo(Comunicazione.PAREGGIO,matriceTris);
-								break;
-								
-							case 1:
-								com = new Protocollo(Comunicazione.VITTORIA,matriceTris);
-								break;
-							
-							case 2:
-								com = new Protocollo(Comunicazione.SCONFITTA,matriceTris);
-								break;
-							
-							default:
-								break;
-						
-						}
-						
-						break;
+						default:
+							break;
+					
+					}
 					
 				}
 				
@@ -194,14 +158,40 @@ public class Server extends Thread {
 				com = new Protocollo(Comunicazione.OP_NACK,"Classe corrotta ricevuta dal server.");
 			
 		}
-		catch(IOException | ClassNotFoundException e){
-			e.printStackTrace();
-		}
+		catch(ClassNotFoundException e){}
 		
 		return com;
 		
 	}
 	
+	private void chiudi() {
+		
+		try {
+			
+			try {
+				scrivi(outputPrimo,new Protocollo(Comunicazione.EXIT));
+			}
+			catch(IOException e) {}
+			
+			try {
+				scrivi(outputSecondo,new Protocollo(Comunicazione.EXIT));
+			}
+			catch(IOException e) {}
+			
+			outputPrimo.close();
+			inputPrimo.close();
+			
+			outputSecondo.close();
+			inputSecondo.close();
+			
+			richiestaPrimo.close();
+			richiestaSecondo.close();
+			
+		}
+		catch(IOException e) {}
+		
+	}
+
 	private void inizializzaMat() {
 		
 		matriceTris = new int[3][3];
