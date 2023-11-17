@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
+
 import model.Comunicazione;
 import model.Giocatore;
 import view.*;
@@ -21,7 +23,7 @@ public class Controller implements ActionListener, WindowListener {
 	
 	public Controller(FinestraPrincipale finestraPrincipale) {
 		this.finestraPrincipale = finestraPrincipale;
-		finestraPrincipale.registraEventi(this);
+		finestraPrincipale.registraEventi(this);	//il controller viene creato all'inizio con la finestra principale
 	}
 
 	@Override
@@ -30,10 +32,10 @@ public class Controller implements ActionListener, WindowListener {
 		if(e.getSource()==finestraPrincipale.getBtnConnettiti())
 			connetti();
 		
-		if(finestraGioco!=null) {
+		if(finestraGioco!=null) {	//per evitare che vengano chiamati i metodi get quando la finestra di gioco non esiste ancora
 			
 			if(e.getSource()==finestraGioco.getBtnMatrice(0,0))
-				giocatore.inviaScelta(Comunicazione.A1);
+				giocatore.inviaScelta(Comunicazione.A1);	//inviamo la scelta al server
 			
 			if(e.getSource()==finestraGioco.getBtnMatrice(0,1))
 				giocatore.inviaScelta(Comunicazione.B1);
@@ -59,9 +61,9 @@ public class Controller implements ActionListener, WindowListener {
 			if(e.getSource()==finestraGioco.getBtnMatrice(2,2))
 				giocatore.inviaScelta(Comunicazione.C3);
 			
-			//-- USCITA --
+			// -- USCITA --
 			if(e.getSource()==finestraGioco.getBtnEsci())
-				esci();
+				conferma();	//chiediamo la conferma di uscita
 			
 		}
 		
@@ -69,97 +71,94 @@ public class Controller implements ActionListener, WindowListener {
 
 	private void connetti() {
 		
-		String indirizzo = finestraPrincipale.getIndirizzo();
+		String indirizzo = finestraPrincipale.getIndirizzo();	//prende l'indirizzo dalla finestra di connessione
 		
-		if(validaIndirizzo(indirizzo)) {
+		if(validaIndirizzo(indirizzo)) {	
 			
 			try {
 				
-				giocatore = new Giocatore(indirizzo);
+				giocatore = new Giocatore(indirizzo);	//prova a connettersi al server creando l'oggetto client (Giocatore)
 				
-				finestraGioco = new FinestraGioco();
+				finestraGioco = new FinestraGioco();	//crea la nuova finestra di gioco
 				finestraGioco.registraEventi(this);
 				
-				giocatore.setFinestra(finestraGioco);
+				giocatore.setFinestra(finestraGioco);	//passa la nuova finestra al giocatore
 				
-				giocatore.start();
+				giocatore.start();	//fa partire il thread del client
 				
-				finestraPrincipale.setVisible(false);
+				finestraPrincipale.setVisible(false);	//nasconde la finestra di connessione
 
 			}
 			catch(IOException e) {
-				finestraPrincipale.mostraErrore("Errore durante la connessione al server. Inserisci l'indirizzo corretto o riprova più tardi.");
+				finestraPrincipale.mostraErrore("Errore durante la connessione al server. Inserisci l'indirizzo corretto o riprova più tardi.");	//se la connessione col server non riesce
 			}
 			
 		}
 		else
-			finestraPrincipale.mostraErrore("Errore: Formato dell'indirizzo non corretto.");
+			finestraPrincipale.mostraErrore("Errore: Formato dell'indirizzo non corretto.");	//se l'indirizzo non rispetta la regex
 		
-		finestraPrincipale.getTextFieldIndirizzo().setText("");
-		
-	}
-	
-	private void esci() {
-		
-		giocatore.chiudiConnessione();
-		giocatore = null;
-		
-		finestraGioco.dispose();
-		
-		finestraPrincipale.setVisible(true);
+		finestraPrincipale.getTextFieldIndirizzo().setText("");	//resetta il campo di testo della finestra di connessione
 		
 	}
 	
 	private boolean validaIndirizzo(String indirizzo) {
 	    
-		String condition = "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}";
+		String condition = "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}";	//regex che prevede nnn.nnn.nnn.nnn (n = numero)
 
 	    Pattern p = Pattern.compile(condition);
 	    Matcher m = p.matcher(indirizzo);
 	    
-	    return m.matches();
+	    return m.matches();	//vero se l'indirizzo inserito rispetta la regex
 
 	}
-
-	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
+	
+	private void conferma() {
+		
+		int s = JOptionPane.showConfirmDialog(finestraGioco.getContentPane(),"Abbandonare il gioco?","Conferma uscita",JOptionPane.YES_NO_CANCEL_OPTION);	//chiediamo all'utente se vuole davvero uscire
+		
+		if(s==0)
+			finestraGioco.dispose();	//chiudendo la finestra viene anche avviata la corretta procedura di chiusura
+	
+	}
+	
+	private void esci() {
+		
+		giocatore.chiudiConnessione();	//chiude la connessione ed i buffer
+		giocatore = null;	//resetta il client
+		
+		finestraPrincipale.setVisible(true);	//mostra nuovamente la finestra di connessione
 		
 	}
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
+		
+		if(e.getSource().equals(finestraGioco)) 
+			conferma();
 		
 	}
-
+	
 	@Override
 	public void windowClosed(WindowEvent e) {
-		esci();
+		
+		if(e.getSource().equals(finestraGioco))
+			esci();	//se viene chiusa la finestra di gioco allora bisogna uscire dal gioco con la procedura corretta
+	
 	}
+	
+	@Override
+	public void windowOpened(WindowEvent e) {}
 
 	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowIconified(WindowEvent e) {}
 
 	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowDeiconified(WindowEvent e) {}
 
 	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowActivated(WindowEvent e) {}
 
 	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowDeactivated(WindowEvent e) {}
 	
 }
