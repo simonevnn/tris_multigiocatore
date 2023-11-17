@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.Color;
 
@@ -35,7 +36,7 @@ public class FinestraPrincipale extends JFrame {
 		setBounds(100, 100, 450, 300);	
 		setResizable(false);	//non ridimensionabile
 		
-		setVisible(true);
+		setIconImage(new ImageIcon("resources/finestra.png").getImage());	//immagine icona della finestra
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -63,6 +64,8 @@ public class FinestraPrincipale extends JFrame {
 		contentPane.add(btnConnettiti);
 		
 		getRootPane().setDefaultButton(btnConnettiti);	//per far premere il bottone premendo invio da tastiera
+		
+		setVisible(true);
 		
 	}
 
