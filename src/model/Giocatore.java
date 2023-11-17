@@ -33,8 +33,6 @@ public class Giocatore extends Thread {
 		
 		primaLettura = inPartita = true;
 		
-		this.start();
-		
 	}
 
 	public void setFinestra(FinestraGioco finestra) {
@@ -130,7 +128,7 @@ public class Giocatore extends Thread {
 								if(com.getMatriceTris()!=null)
 									mostraMatrice(com.getMatriceTris());
 								
-								finestra.confermaMessaggio("L'AVVERSARIO HA ABBANDONATO!", "Partita terminata");
+								finestra.confermaMessaggio("VITTORIA!", "Partita terminata");
 								
 								break;
 								
@@ -141,7 +139,18 @@ public class Giocatore extends Thread {
 								if(com.getMatriceTris()!=null)
 									mostraMatrice(com.getMatriceTris());
 								
-								finestra.confermaMessaggio("L'AVVERSARIO HA ABBANDONATO!", "Partita terminata");
+								finestra.confermaMessaggio("SCONFITTA!", "Partita terminata");
+								
+								break;
+								
+							case PAREGGIO:
+								
+								inPartita = false;
+								
+								if(com.getMatriceTris()!=null)
+									mostraMatrice(com.getMatriceTris());
+								
+								finestra.confermaMessaggio("PAREGGIO!", "Partita terminata");
 								
 								break;
 								

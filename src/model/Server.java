@@ -27,8 +27,6 @@ public class Server extends Thread {
 			
 			System.out.println("SERVER ATTIVO");
 			
-			inizializzaMat();
-			
 			this.start();
 			
 		}
@@ -75,6 +73,8 @@ public class Server extends Thread {
 	
 	private void gioco() throws IOException {
 		
+		inizializzaMat();
+		
 		Protocollo com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
 		int i = 0;
 		
@@ -87,7 +87,16 @@ public class Server extends Thread {
 			else 
 				com = leggi(inputSecondo);
 			
+			if(i%2!=0 && com.getComunicazione().equals(Comunicazione.VITTORIA))
+				com.setComunicazione(Comunicazione.SCONFITTA);
+			
 			scrivi(outputPrimo,com);
+			
+			if(i%2==0 && com.getComunicazione().equals(Comunicazione.VITTORIA))
+				com.setComunicazione(Comunicazione.SCONFITTA);
+			else if(i%2!=0 && com.getComunicazione().equals(Comunicazione.SCONFITTA))
+				com.setComunicazione(Comunicazione.VITTORIA);
+				
 			scrivi(outputSecondo,com);
 			
 			if(i%2==0)
@@ -128,7 +137,7 @@ public class Server extends Thread {
 						
 					aggiornaMat(com.getComunicazione(),g);
 					
-					switch(controllo(matriceTris,g)) {
+					switch(controllo(g)) {
 					
 						case -1:
 							com = new Protocollo(Comunicazione.OP_ACK,matriceTris);
@@ -140,10 +149,6 @@ public class Server extends Thread {
 							
 						case 1:
 							com = new Protocollo(Comunicazione.VITTORIA,matriceTris);
-							break;
-						
-						case 2:
-							com = new Protocollo(Comunicazione.SCONFITTA,matriceTris);
 							break;
 						
 						default:
@@ -250,13 +255,61 @@ public class Server extends Thread {
 		
 	}
 	
-	private int controllo(int[][] matrice, int giocatore) {	//-1 nessun risultato, 0 griglia piena, 1 vittoria, 2 sconfitta
-		
-		
-		
-		return -1;
-		
-	}
+	private int controllo(int giocatore) {    //-1 nessun risultato, 0 griglia piena, 1 vittoria, 2 sconfitta
+       
+        int ris = -1;
+        boolean pieno = true;
+
+        if(matriceTris[0][0] == giocatore) {
+        	
+            if(matriceTris[0][0] == matriceTris[1][1] && matriceTris[1][1] == matriceTris[2][2])
+                ris = 1;
+            
+        }
+        if(matriceTris[0][2] == giocatore) {
+        	
+            if(matriceTris[0][2] == matriceTris[1][1] && matriceTris[1][1] == matriceTris[2][0])
+                ris = 1;
+        
+        }
+        
+        for(int i=0;i<matriceTris.length;i++) {
+            
+        	if (matriceTris[i][0] == giocatore) {
+                
+        		if(matriceTris[i][0] == matriceTris[i][1] && matriceTris[i][1] == matriceTris[i][2])
+                    ris = 1;
+
+            }
+
+            if(matriceTris[0][i] == giocatore) {
+                
+            	if(matriceTris[0][i] == matriceTris[1][i] && matriceTris[1][i] == matriceTris[2][i])
+                    ris = 1;
+
+            }
+            
+        }
+       
+        for(int i=0;i<matriceTris.length;i++) {
+            
+        	for(int j=0;j<matriceTris[0].length;j++) {
+            	
+            	if(matriceTris[i][j]==0) {
+            		pieno = false;
+            		break;
+            	}
+            		
+            }
+        	
+        }
+        
+        if(ris!=1 && pieno)
+        	ris = 0;
+
+        return ris;
+
+    }
 
 	public static void main(String[] args) {
 		Server server = new Server();

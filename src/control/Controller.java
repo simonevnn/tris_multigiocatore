@@ -82,6 +82,8 @@ public class Controller implements ActionListener, WindowListener {
 				
 				giocatore.setFinestra(finestraGioco);
 				
+				giocatore.start();
+				
 				finestraPrincipale.setVisible(false);
 
 			}
