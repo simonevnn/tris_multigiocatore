@@ -39,7 +39,8 @@ public class FinestraGioco extends JFrame {
 	public FinestraGioco() {
 		
 		super("Partita");
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
         contentPane = new JPanel(new BorderLayout(5,5));
         contentPane.setBorder(new EmptyBorder(10,10,10,10));
@@ -56,26 +57,26 @@ public class FinestraGioco extends JFrame {
         pannelloTris = new JPanel(new BorderLayout(30,30));
         contentPane.add(pannelloTris, BorderLayout.CENTER);
         
-        pannelloBottoni = new JPanel(new GridLayout(3,3,5,5));
+        pannelloBottoni = new JPanel(new GridLayout(3,3,5,5));	//per disporre i bottoni su una griglia 3x3
         pannelloTris.add(pannelloBottoni, BorderLayout.CENTER);
 		
         matriceBtn = new JButton[3][3];
         
-		for(int i=0;i<matriceBtn.length;i++) {
+		for(int i=0;i<matriceBtn.length;i++) {	//impostazione di tutti i bottoni
 			
 			for(int j=0;j<matriceBtn[0].length;j++) {
 				
 				matriceBtn[i][j] = new JButton("");
 				matriceBtn[i][j].setPreferredSize(new Dimension(50,50));
 				
-				matriceBtn[i][j].setFocusable(false);
+				matriceBtn[i][j].setFocusable(false);	//così non viene fuori il quadrato di selezione
 				
-				matriceBtn[i][j].setBackground(Color.WHITE);
-				matriceBtn[i][j].setIcon(new ImageIcon("resources/neutrale.png"));
+				matriceBtn[i][j].setBackground(Color.WHITE);	//colore del bottone
+				matriceBtn[i][j].setIcon(new ImageIcon("resources/neutrale.png"));	//icona di default, va impostata altrimenti non è possibile impostare quellad a disattivato
 				
-				matriceBtn[i][j].setEnabled(false);
+				matriceBtn[i][j].setEnabled(false);	//tutti disabilitati finché non in partita
 				
-				pannelloBottoni.add(matriceBtn[i][j]);
+				pannelloBottoni.add(matriceBtn[i][j]);	//bottone aggiunto al pannello
 			
 			}
 			
@@ -88,13 +89,13 @@ public class FinestraGioco extends JFrame {
 		btnEsci.setBounds(90,30,90,30);
 		
 		btnEsci.setBackground(Color.RED);
-		btnEsci.setForeground(Color.WHITE);
+		btnEsci.setForeground(Color.WHITE);	//colore del testo
 		//btnEsci.setBorder(new LineBorder(Color.RED,3));
 		
 		pannelloEsci.add(btnEsci);
 		
         setContentPane(contentPane);
-        pack();
+        pack();	//per disporre gli elementi in base alla dimensione preferita
         setResizable(false);
         setVisible(true);
 		
@@ -104,7 +105,7 @@ public class FinestraGioco extends JFrame {
 		return lblTitolo;
 	}
 	
-	public JButton getBtnMatrice(int i, int j) {
+	public JButton getBtnMatrice(int i, int j) {	//prende un bottone della matrice in base a riga e colonna
 		return matriceBtn[i][j];
 	}
 	
@@ -117,24 +118,26 @@ public class FinestraGioco extends JFrame {
 		for(int i=0;i<matriceBtn.length;i++) {
 			
 			for(int j=0;j<matriceBtn[0].length;j++)
-				matriceBtn[i][j].addActionListener(controller);
+				matriceBtn[i][j].addActionListener(controller);	//ActionListener aggiunto ad ogni pulsante della matrice
 
 		}
 		
 		btnEsci.addActionListener(controller);
 		
+		addWindowListener(controller);
+		
 	}
 
-	public void mostraErrore(String msg) {
+	public void mostraErrore(String msg) {	//pop-up per errori
 		JOptionPane.showMessageDialog(contentPane,msg);
 	}
 	
-	public void confermaMessaggio(String msg, String title) {
+	public void confermaMessaggio(String msg, String title) {	//pop-up di comunicazione che porta ad uscire dal gioco
 		
 		int s = JOptionPane.showConfirmDialog(contentPane,msg,title,JOptionPane.DEFAULT_OPTION);
 		
 		if(s==0||s==-1)
-			btnEsci.doClick();
+			dispose();
 		
 	}
 	
@@ -156,7 +159,7 @@ public class FinestraGioco extends JFrame {
 //
 //	}
 	
-	public void sbloccaBottoni() {
+	public void sbloccaBottoni() {	//per sbloccare i bottoni una volta in partita
 		
 		for(int i=0;i<matriceBtn.length;i++) {
 			
@@ -168,8 +171,8 @@ public class FinestraGioco extends JFrame {
 	}
 	
 	public void scriviScelta(int i, int j, int val) {
-		matriceBtn[i][j].setEnabled(false);
-		matriceBtn[i][j].setDisabledIcon(new ImageIcon("resources/giocatore"+val+".png"));
+		matriceBtn[i][j].setEnabled(false);	//disabilita il bottone
+		matriceBtn[i][j].setDisabledIcon(new ImageIcon("resources/giocatore"+val+".png"));	//in base al giocatore che ha fatto la scelta, imposta l'icona personalizzata del bottone disattivato
 	}
 	
 }

@@ -2,11 +2,11 @@ package model;
 
 import java.io.Serializable;
 
-public class Protocollo implements Serializable {
+public class Protocollo implements Serializable {	//classe degli oggetti trasmessi in rete, serializzabili
 
-	private Comunicazione comunicazione;
-	private int[][] matriceTris;
-	private String messaggio;
+	private Comunicazione comunicazione;	//tipo di scelta/comunicazione
+	private int[][] matriceTris;	//eventuale matrice (comunicata dal server)
+	private String messaggio;	//eventuale messaggio (solitamente di errore)
 	
 	public Protocollo(Comunicazione comunicazione, int[][] matriceTris, String messaggio) {
 		this.comunicazione = comunicazione;

@@ -28,12 +28,12 @@ public class FinestraPrincipale extends JFrame {
 
 	public FinestraPrincipale() {
 		
-		super("Connettiti al server");
+		super("Connettiti al server");	//titolo della finestra
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);	//terminiamo il programma se si chiude la finestra
 		
-		setBounds(100, 100, 450, 300);
-		setResizable(false);
+		setBounds(100, 100, 450, 300);	
+		setResizable(false);	//non ridimensionabile
 		
 		setVisible(true);
 		
@@ -62,7 +62,7 @@ public class FinestraPrincipale extends JFrame {
 		btnConnettiti.setBounds(246, 112, 95, 23);
 		contentPane.add(btnConnettiti);
 		
-		getRootPane().setDefaultButton(btnConnettiti);
+		getRootPane().setDefaultButton(btnConnettiti);	//per far premere il bottone premendo invio da tastiera
 		
 	}
 
@@ -74,15 +74,15 @@ public class FinestraPrincipale extends JFrame {
 		return textFieldIndirizzo;
 	}
 
-	public void registraEventi(Controller controller) {
+	public void registraEventi(Controller controller) {	//connette controller e finestra
 		btnConnettiti.addActionListener(controller);
 	}
 	
-	public String getIndirizzo() {
+	public String getIndirizzo() {	//prende l'indirizzo nel campo di testo
 		return textFieldIndirizzo.getText();
 	}
 	
-	public void mostraErrore(String err) {
+	public void mostraErrore(String err) {	//mostra un pop-up di dialogo con l'errore
 		JOptionPane.showMessageDialog(contentPane,err);
 	}
 

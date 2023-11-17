@@ -12,24 +12,24 @@ import view.FinestraGioco;
 
 public class Giocatore extends Thread {
 
-	private Socket connessione;
-	private ObjectOutputStream output;
-	private ObjectInputStream input;
+	private Socket connessione;	//socket di connessione col server
+	private ObjectOutputStream output;	//buffer di output
+	private ObjectInputStream input;	//buffer di input
 	private FinestraGioco finestra;
-	private Semaphore lettura;
-	private Semaphore scrittura;
+	private Semaphore lettura;	//semaforo di lettura
+	private Semaphore scrittura;	//semaforo di scrittura
 	private boolean primaLettura;
 	private boolean inPartita;
 	
 	public Giocatore(String indirizzo) throws IOException {
 		
-		connessione = new Socket(indirizzo,8081);
+		connessione = new Socket(indirizzo,8081);	//proviamo a connetterci al server, l'eccezione viene catturata nel controller
 		
-		output = new ObjectOutputStream(connessione.getOutputStream());
-		input = new ObjectInputStream(connessione.getInputStream());
+		output = new ObjectOutputStream(connessione.getOutputStream());	//apriamo il canale di output
+		input = new ObjectInputStream(connessione.getInputStream());	//apriamo il canale di input
 		
-		lettura = new Semaphore(1);
-		scrittura = new Semaphore(0);
+		lettura = new Semaphore(1);	//lettura parte da verde
+		scrittura = new Semaphore(0);	//scrittura parte da rosso
 		
 		primaLettura = inPartita = true;
 		
@@ -43,7 +43,7 @@ public class Giocatore extends Thread {
 		
 		try {
 			
-			Object o = input.readObject();
+			Object o = input.readObject();	//aspetta di ricevere il via libera per cominciare la partita
 			
 			if(o instanceof Protocollo) {
 				
@@ -51,14 +51,14 @@ public class Giocatore extends Thread {
 				
 				switch(temp.getComunicazione()) {
 				
-					case START:
-						finestra.sbloccaBottoni();
-						finestra.getLblTitolo().setText("IN PARTITA");
+					case START:	//via libera
+						finestra.sbloccaBottoni();	//vengono sbloccati i bottoni della griglia
+						finestra.getLblTitolo().setText("IN PARTITA");	//viene cambiata la scritta del titolo
 						break;
 						
-					case EXIT:
-						inPartita = false;
-						finestra.confermaMessaggio("L'AVVERSARIO HA ABBANDONATO!", "Partita terminata");
+					case EXIT:	//se c'era un primo giocatore in coda che però ha abbandonato
+						inPartita = false;	//per non entrare nemmeno nel while del run
+						finestra.confermaMessaggio("L'AVVERSARIO HA ABBANDONATO!", "Partita terminata");	//fa tornare alla schermata di connessione
 						break;
 						
 					default:
@@ -73,62 +73,49 @@ public class Giocatore extends Thread {
 		
 	}
 	
-	/**
-	 * 
-	 * while(true){
-	 * 
-	 * 		acquisisci lettura
-	 * 		leggi
-	 * 		rilascia scrittura
-	 * 
-	 * }
-	 * 
-	 */
-	
 	@Override
 	public void run() {
 		
-		attendi();
+		attendi();	//bisogna attendere che entrambi i giocatori siano entrati
 
 		while(inPartita) {
 
 			try {
 				
-				lettura.acquire();
+				lettura.acquire();	//se è libero viene acquisito, altrimenti si attende
 
 				try {
 					
+					Object o = input.readObject();	//viene letto l'oggetto dal server
 					
-					Object o = input.readObject();
-					
-					if(o instanceof Protocollo) {
+					if(o instanceof Protocollo) {	//se è di tipo del nostro protocollo
 						
-						Protocollo com = (Protocollo)o;
+						Protocollo com = (Protocollo)o;	//facciamo il casting
 						
-						switch(com.getComunicazione()) {
+						switch(com.getComunicazione()) {	//vediamo che cosa ci comunica il server
 					
-							case OP_ACK:
+							case OP_ACK:	//normale OK
 
-								if(com.getMatriceTris()!=null)		
-									mostraMatrice(com.getMatriceTris());
+								if(com.getMatriceTris()!=null)	//se il server ha allegato una matrice
+									mostraMatrice(com.getMatriceTris());	//stampiamo le scelte sulla griglia dei bottoni
 								
 								break;
 							
-							case OP_NACK:
+							case OP_NACK:	//errore
 								
 								if(com.getMessaggio()!=null)
-									finestra.mostraErrore("Errore: "+com.getMessaggio());
+									finestra.mostraErrore("Errore: "+com.getMessaggio());	//viene mostrato errore
 								
 								break;
 								
 							case VITTORIA:
 								
-								inPartita = false;
+								inPartita = false;	//termina partita
 								
 								if(com.getMatriceTris()!=null)
-									mostraMatrice(com.getMatriceTris());
+									mostraMatrice(com.getMatriceTris());	//mostriamo la matrice
 								
-								finestra.confermaMessaggio("VITTORIA!", "Partita terminata");
+								finestra.confermaMessaggio("VITTORIA!", "Partita terminata");	//per tornare alla finestra di connessione e chiudere tutto
 								
 								break;
 								
@@ -163,32 +150,31 @@ public class Giocatore extends Thread {
 								break;
 								
 							default:
-								lettura.release();
 								break;
 								
 						}
 						
-						if(inPartita) {
+						if(inPartita) {	//se la partita non è terminata
 							
-							if(primaLettura) {
+							if(primaLettura) {	//se è la prima lettura
 								primaLettura = false;
-								scrittura.release();
+								scrittura.release();	//attendiamo la scelta dell'utente
 							}
 							else {
 								primaLettura = true;
 								scrittura.release();
-								inviaScelta(Comunicazione.OP_ACK);
+								inviaScelta(Comunicazione.OP_ACK);	//altrimenti inviamo semplice risposta al server che abbiamo ricevuto la nuova comunicazione e aspettiamo il nostro turno
 							}
 							
 						}
 						
 					}
 					else
-						lettura.release();
+						lettura.release();	//se riceviamo classe corrotta dobbiamo leggere di nuovo
 					
 				}
 				catch(IOException | ClassNotFoundException e) {
-					lettura.release();
+					lettura.release();	//in caso di eccezione leggiamo di nuovo
 				}
 				
 			}
@@ -200,20 +186,20 @@ public class Giocatore extends Thread {
 
 	public void inviaScelta(Comunicazione scelta) {
 			
-			if(scrittura.tryAcquire()) {
+			if(scrittura.tryAcquire()) {	//proviamo a vedere se il semaforo di scrittura è libero (true)
 				
-				Protocollo com = new Protocollo(scelta);
+				Protocollo com = new Protocollo(scelta);	//creiamo una comunicazione con la scelta dell'utente
 				
 				try {
-					output.writeObject(com);
+					output.writeObject(com);	//scriviamo al server
 				}
 				catch(IOException e) {}
 			
-				lettura.release();
+				lettura.release();	//facciamo continuare la ricezione dal server
 				
 			}
 			else
-				finestra.mostraErrore("Aspetta il tuo turno.");
+				finestra.mostraErrore("Aspetta il tuo turno.");	//se il client sta leggendo
 			
 	}
 	
@@ -223,10 +209,10 @@ public class Giocatore extends Thread {
 			
 			inPartita = false;
 			
-			output.close();
+			output.close();	//chiusura dei buffer
 			input.close();
 			
-			connessione.close();
+			connessione.close();	//chiusura della connessione
 			
 		}
 		catch(IOException e) {}
@@ -239,7 +225,7 @@ public class Giocatore extends Thread {
 
 			for(int j=0;j<matrice[0].length;j++) {
 				
-				if(matrice[i][j]!=0)
+				if(matrice[i][j]!=0)	//se la cella della matrice ha una scelta scritta (1 o 2, mentre 0 significa vuota)
 					finestra.scriviScelta(i,j,matrice[i][j]);
 				
 			}
