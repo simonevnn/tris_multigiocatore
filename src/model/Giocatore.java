@@ -33,8 +33,6 @@ public class Giocatore extends Thread {
 		
 		primaLettura = inPartita = true;
 		
-		this.start();
-		
 	}
 
 	public void setFinestra(FinestraGioco finestra) {
@@ -58,17 +56,20 @@ public class Giocatore extends Thread {
 						finestra.getLblTitolo().setText("IN PARTITA");
 						break;
 						
+					case EXIT:
+						inPartita = false;
+						finestra.confermaMessaggio("L'AVVERSARIO HA ABBANDONATO!", "Partita terminata");
+						break;
+						
 					default:
-						throw new IOException();
+						break;
 				
 				}
 				
 			}
 				
 		}	
-		catch(IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		catch(IOException | ClassNotFoundException e) {}
 		
 	}
 	
@@ -116,34 +117,48 @@ public class Giocatore extends Thread {
 							case OP_NACK:
 								
 								if(com.getMessaggio()!=null)
-									finestra.mostraMessaggio("Errore: "+com.getMessaggio());
+									finestra.mostraErrore("Errore: "+com.getMessaggio());
 								
 								break;
 								
 							case VITTORIA:
 								
+								inPartita = false;
+								
 								if(com.getMatriceTris()!=null)
 									mostraMatrice(com.getMatriceTris());
 								
-								finestra.mostraMessaggio("HAI VINTO!");
-								inPartita = false;
+								finestra.confermaMessaggio("VITTORIA!", "Partita terminata");
 								
 								break;
 								
 							case SCONFITTA:
 								
+								inPartita = false;
+								
 								if(com.getMatriceTris()!=null)
 									mostraMatrice(com.getMatriceTris());
 								
-								finestra.mostraMessaggio("HAI PERSO!");
+								finestra.confermaMessaggio("SCONFITTA!", "Partita terminata");
+								
+								break;
+								
+							case PAREGGIO:
+								
 								inPartita = false;
+								
+								if(com.getMatriceTris()!=null)
+									mostraMatrice(com.getMatriceTris());
+								
+								finestra.confermaMessaggio("PAREGGIO!", "Partita terminata");
 								
 								break;
 								
 							case EXIT:
 								
-								finestra.mostraMessaggio("L'AVVERSARIO HA ABBANDONATO!");
 								inPartita = false;
+								
+								finestra.confermaMessaggio("L'AVVERSARIO HA ABBANDONATO!", "Partita terminata");
 								
 								break;
 								
@@ -153,14 +168,18 @@ public class Giocatore extends Thread {
 								
 						}
 						
-						if(primaLettura) {
-							primaLettura = false;
-							scrittura.release();
-						}
-						else {
-							primaLettura = true;
-							scrittura.release();
-							inviaScelta(Comunicazione.OP_ACK);
+						if(inPartita) {
+							
+							if(primaLettura) {
+								primaLettura = false;
+								scrittura.release();
+							}
+							else {
+								primaLettura = true;
+								scrittura.release();
+								inviaScelta(Comunicazione.OP_ACK);
+							}
+							
 						}
 						
 					}
@@ -169,14 +188,11 @@ public class Giocatore extends Thread {
 					
 				}
 				catch(IOException | ClassNotFoundException e) {
-					e.printStackTrace();
 					lettura.release();
 				}
 				
 			}
-			catch(InterruptedException e) {
-				e.printStackTrace();
-			}
+			catch(InterruptedException e) {}
 			
 		}
 		
@@ -191,15 +207,13 @@ public class Giocatore extends Thread {
 				try {
 					output.writeObject(com);
 				}
-				catch(IOException e) {
-					e.printStackTrace();
-				}
+				catch(IOException e) {}
 			
 				lettura.release();
 				
 			}
 			else
-				finestra.mostraMessaggio("Aspetta il tuo turno.");
+				finestra.mostraErrore("Aspetta il tuo turno.");
 			
 	}
 	
@@ -215,9 +229,7 @@ public class Giocatore extends Thread {
 			connessione.close();
 			
 		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
+		catch(IOException e) {}
 		
 	}
 	
@@ -234,14 +246,6 @@ public class Giocatore extends Thread {
 			
 		}
 		
-	}
-	
-	public boolean isInPartita() {
-		return inPartita;
-	}
-
-	public void setInPartita(boolean inPartita) {
-		this.inPartita = inPartita;
 	}
 	
 }

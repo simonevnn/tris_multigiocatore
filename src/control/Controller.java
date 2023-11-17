@@ -13,7 +13,7 @@ import model.Comunicazione;
 import model.Giocatore;
 import view.*;
 
-public class Controller extends Thread implements ActionListener, WindowListener {
+public class Controller implements ActionListener, WindowListener {
 
 	private FinestraPrincipale finestraPrincipale;
 	private FinestraGioco finestraGioco;
@@ -22,20 +22,6 @@ public class Controller extends Thread implements ActionListener, WindowListener
 	public Controller(FinestraPrincipale finestraPrincipale) {
 		this.finestraPrincipale = finestraPrincipale;
 		finestraPrincipale.registraEventi(this);
-	}
-
-	@Override
-	public void run() {
-		
-		while(true) {
-			
-			if(!giocatore.isInPartita()) {
-				esci();
-				break;
-			}
-			
-		}
-		
 	}
 
 	@Override
@@ -74,10 +60,8 @@ public class Controller extends Thread implements ActionListener, WindowListener
 				giocatore.inviaScelta(Comunicazione.C3);
 			
 			//-- USCITA --
-			if(e.getSource()==finestraGioco.getBtnEsci()) {
-				giocatore.inviaScelta(Comunicazione.EXIT);
+			if(e.getSource()==finestraGioco.getBtnEsci())
 				esci();
-			}
 			
 		}
 		
@@ -98,10 +82,10 @@ public class Controller extends Thread implements ActionListener, WindowListener
 				
 				giocatore.setFinestra(finestraGioco);
 				
+				giocatore.start();
+				
 				finestraPrincipale.setVisible(false);
-				
-				this.start();
-				
+
 			}
 			catch(IOException e) {
 				finestraPrincipale.mostraErrore("Errore durante la connessione al server. Inserisci l'indirizzo corretto o riprova più tardi.");
@@ -121,7 +105,6 @@ public class Controller extends Thread implements ActionListener, WindowListener
 		giocatore = null;
 		
 		finestraGioco.dispose();
-		finestraGioco = null;
 		
 		finestraPrincipale.setVisible(true);
 		
