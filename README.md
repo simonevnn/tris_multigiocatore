@@ -1,2 +1,2 @@
-# progetto_TPSIT_novembre2023
+# tris_multigiocatore
 Progetto Lab. TPSIT mese novembre 2023.
