@@ -95,8 +95,13 @@ public class FinestraGioco extends JFrame {
 		pannelloEsci.add(btnEsci);
 		
         setContentPane(contentPane);
+        
         pack();	//per disporre gli elementi in base alla dimensione preferita
+        
+        setIconImage(new ImageIcon("resources/finestra.png").getImage());
+        
         setResizable(false);
+        
         setVisible(true);
 		
 	}
